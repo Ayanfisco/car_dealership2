@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_car,access.car,model_car_dealership_car,,1,1,1,1
+access_car_make,access.car.make,model_car_dealership_make,,1,1,1,1
+access_car_model,access.car.model,model_car_dealership_model,,1,1,1,1
+access_car_feature,access.car.feature,model_car_dealership_feature,,1,1,1,1
+access_car_image,access.car.image,model_car_dealership_image,,1,1,1,1
+access_lease,access.lease,model_car_dealership_lease,,1,1,1,1
+access_car_service,access.car.service,model_car_dealership_service,,1,1,1,1
+access_test_drive_public,Test Drive Public Access,model_car_dealership_test_drive,,1,1,1,0

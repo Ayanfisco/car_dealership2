@@ -1,0 +1,37 @@
+<odoo>
+    <!-- Main Menu -->
+    <menuitem id="car_dealership_root" name="Car Dealership" sequence="10"/>
+
+    <!-- Inventory Section -->
+    <menuitem id="inventory_menu" name="Vehicles" parent="car_dealership_root" sequence="10"/>
+
+    <menuitem id="menu_car_items" name="All Cars" parent="inventory_menu"
+              action="action_car" sequence="10"/>
+
+    <menuitem id="menu_available_cars" name="Available Cars" parent="inventory_menu"
+              action="action_car_available" sequence="20"/>
+
+    <menuitem id="menu_sold_cars" name="Sold Cars" parent="inventory_menu"
+              action="action_car_sold" sequence="30"/>
+
+    <!-- Configuration Submenu -->
+    <menuitem id="config_menu" name="Configuration" parent="inventory_menu" sequence="100"/>
+
+    <menuitem id="menu_car_makes" name="Car Makes" parent="config_menu"
+              action="action_car_make" sequence="10"/>
+
+    <menuitem id="menu_car_models" name="Car Models" parent="config_menu"
+              action="action_car_model" sequence="20"/>
+
+    <menuitem id="menu_car_features" name="Car Features" parent="config_menu"
+              action="action_car_feature" sequence="30"/>
+
+    <menuitem id="menu_test_drive" name="Test Drives" parent="inventory_menu"
+              action="action_test_drive"/>
+
+    <!-- Leasing Section (keeping your existing lease structure) -->
+    <menuitem id="lease_menu" name="Leasing" parent="car_dealership_root" sequence="20"/>
+
+    <menuitem id="menu_car_leases" name="Leases" parent="lease_menu" action="action_car_lease" sequence="10"/>
+
+</odoo>

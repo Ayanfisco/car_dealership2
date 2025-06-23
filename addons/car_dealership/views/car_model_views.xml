@@ -1,0 +1,36 @@
+<odoo>
+    <!-- Car Model Views -->
+    <record id="view_car_model_tree" model="ir.ui.view">
+        <field name="name">car.model.tree</field>
+        <field name="model">car.dealership.model</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="make_id"/>
+                <field name="name"/>
+                <field name="body_type"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_car_model_form" model="ir.ui.view">
+        <field name="name">car.model.form</field>
+        <field name="model">car.dealership.model</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="make_id"/>
+                        <field name="name"/>
+                        <field name="body_type"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_car_model" model="ir.actions.act_window">
+        <field name="name">Car Models</field>
+        <field name="res_model">car.dealership.model</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

@@ -1,0 +1,50 @@
+<odoo>
+    <!-- Car Make Views -->
+    <record id="view_car_make_tree" model="ir.ui.view">
+        <field name="name">car.make.tree</field>
+        <field name="model">car.dealership.make</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="country"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_car_make_form" model="ir.ui.view">
+        <field name="name">car.make.form</field>
+        <field name="model">car.dealership.make</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="country"/>
+                        <field name="active"/>
+                        <field name="logo" widget="image"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Car Model Views -->
+    <record id="view_car_model_tree" model="ir.ui.view">
+        <field name="name">car.model.tree</field>
+        <field name="model">car.dealership.model</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="make_id"/>
+                <field name="name"/>
+                <field name="body_type"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+    <record id="action_car_make" model="ir.actions.act_window">
+        <field name="name">Car Makes</field>
+        <field name="res_model">car.dealership.make</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

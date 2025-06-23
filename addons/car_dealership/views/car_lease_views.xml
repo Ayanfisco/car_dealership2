@@ -1,0 +1,43 @@
+<odoo>
+    <record id="view_car_lease_tree" model="ir.ui.view">
+    <field name="name">car.lease.tree</field>
+    <field name="model">car.dealership.lease</field>
+    <field name="arch" type="xml">
+        <tree>
+            <field name="name"/>
+            <field name="car_id"/>
+            <field name="customer_id"/>
+            <field name="start_date"/>
+            <field name="end_date"/>
+            <field name="state"/>
+        </tree>
+    </field>
+</record>
+
+<record id="view_car_lease_form" model="ir.ui.view">
+<field name="name">car.lease.form</field>
+<field name="model">car.dealership.lease</field>
+<field name="arch" type="xml">
+    <form>
+        <sheet>
+            <group>
+                <field name="name"/>
+                <field name="car_id"/>
+                <field name="customer_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="lease_term"/>
+                <field name="monthly_payment"/>
+                <field name="state"/>
+            </group>
+        </sheet>
+    </form>
+</field>
+</record>
+
+<record id="action_car_lease" model="ir.actions.act_window">
+<field name="name">Leases</field>
+<field name="res_model">car.dealership.lease</field>
+<field name="view_mode">tree,form</field>
+</record>
+</odoo>

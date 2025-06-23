@@ -1,0 +1,33 @@
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: odoo
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data
+    restart: always
+
+  odoo:
+    image: odoo:17
+    depends_on:
+      - db
+    ports:
+      - "8067:8069"
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./config:/etc/odoo
+      - ./enterprise:/mnt/enterprise
+      - ./addons:/mnt/extra-addons
+    command: odoo --dev=xml -d car_dealership --db_host=db --db_user=odoo --db_password=odoo --db_port=5432
+    restart: always
+
+volumes:
+  odoo-web-data:
+  odoo-db-data:

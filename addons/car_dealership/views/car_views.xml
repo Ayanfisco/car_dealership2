@@ -1,0 +1,264 @@
+<odoo>
+    <!-- Enhanced Car Views -->
+    <record id="view_car_form" model="ir.ui.view">
+        <field name="name">car.dealership.car.form</field>
+        <field name="model">car.dealership.car</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_reserve" string="Reserve" type="object"
+                            invisible="status != 'available'"
+                            class="oe_highlight"/>
+                    <button name="action_make_available" string="Make Available" type="object"
+                            invisible="status != 'reserved'"
+                            class="oe_highlight"/>
+                    <button name="action_mark_sold" string="Mark as Sold" type="object"
+                            invisible="status in ('sold', 'leased')"
+                            class="oe_highlight"/>
+                    <field name="status" widget="statusbar" statusbar_visible="available,reserved,sold,leased"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_view_service_history"
+                                icon="fa-wrench">
+                            <field string="Services" name="service_history_ids" widget="statinfo"/>
+                        </button>
+                    </div>
+
+                    <field name="image_main" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name"/>
+                        </h1>
+                        <h2>
+                            <field name="vin"/>
+                        </h2>
+                    </div>
+
+                    <notebook>
+                        <page string="General Information">
+                            <group>
+                                <group string="Vehicle Details">
+                                    <field name="make_id"/>
+                                    <field name="model_id"/>
+                                    <field name="year"/>
+                                    <field name="condition"/>
+                                    <field name="age" readonly="1"/>
+                                </group>
+                                <group string="Physical Details">
+                                    <field name="color_exterior"/>
+                                    <field name="color_interior"/>
+                                    <field name="mileage" invisible="condition == 'new'"/>
+                                    <field name="fuel_type"/>
+                                    <field name="transmission"/>
+                                    <field name="engine_size"/>
+                                </group>
+                                <group string="Sales and Product">
+                                    <field name="product_id"/>
+                                    <field name="sale_order_id" readonly="1"/>
+                                </group>
+                            </group>
+
+                            <group>
+                                <group string="Pricing">
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="purchase_price"/>
+                                    <field name="selling_price"/>
+                                    <field name="lease_price_monthly"/>
+                                </group>
+                                <group string="Inventory">
+                                    <field name="location"/>
+                                    <field name="date_acquired"/>
+                                    <field name="days_in_inventory" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Lease Options">
+                            <group>
+                                <field name="is_leaseable"/>
+                                <field name="lease_term_min" invisible="not is_leaseable"/>
+                                <field name="lease_term_max" invisible="not is_leaseable"/>
+                            </group>
+                            <group string="Current Lease" invisible="not lease_id">
+                                <field name="lease_id"/>
+                                <field name="owner_id"/>
+                            </group>
+                        </page>
+
+                        <page string="Features &amp; Options">
+                            <field name="feature_ids">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="category"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Images">
+                            <field name="image_ids">
+                                <tree editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="image" widget="image"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Service &amp; Warranty">
+                            <group>
+                                <group string="Warranty">
+                                    <field name="warranty_expiry"/>
+                                </group>
+                                <group string="Service">
+                                    <field name="last_service_date"/>
+                                    <field name="next_service_date"/>
+                                </group>
+                            </group>
+                            <field name="service_history_ids">
+                                <tree>
+                                    <field name="service_date"/>
+                                    <field name="service_type"/>
+                                    <field name="cost"/>
+                                    <field name="description"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page string="Description &amp; Notes">
+                            <group>
+                                <field name="description" widget="html"/>
+                                <field name="internal_notes"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_car_tree" model="ir.ui.view">
+        <field name="name">car.dealership.car.tree</field>
+        <field name="model">car.dealership.car</field>
+        <field name="arch" type="xml">
+            <tree decoration-success="status=='available'"
+                  decoration-warning="status=='reserved'"
+                  decoration-danger="status=='sold'"
+                  decoration-info="status=='leased'">
+                <field name="image_main" widget="image" width="50px"/>
+                <field name="display_name"/>
+                <field name="vin"/>
+                <field name="year"/>
+                <field name="mileage"/>
+                <field name="selling_price"/>
+                <field name="status" widget="badge"
+                       decoration-success="status=='available'"
+                       decoration-warning="status=='reserved'"
+                       decoration-danger="status=='sold'"
+                       decoration-info="status=='leased'"/>
+                <field name="days_in_inventory"/>
+                <field name="location"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_car_kanban" model="ir.ui.view">
+        <field name="name">car.dealership.car.kanban</field>
+        <field name="model">car.dealership.car</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="status">
+                <field name="id"/>
+                <field name="display_name"/>
+                <field name="selling_price"/>
+                <field name="image_main"/>
+                <field name="status"/>
+                <field name="mileage"/>
+                <field name="year"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_image_fill_left">
+                                <img t-att-src="kanban_image('car.dealership.car', 'image_main', record.id.raw_value)"
+                                     alt="Car"/>
+                            </div>
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="display_name"/>
+                                </strong>
+                                <div class="o_kanban_record_subtitle">
+                                    <field name="vin"/>
+                                </div>
+                                <div class="oe_kanban_bottom_left">
+                                    <span>Price:
+                                        <field name="selling_price" widget="monetary"/>
+                                    </span>
+                                    <br/>
+                                    <span>Mileage:
+                                        <field name="mileage"/>
+                                        km
+                                    </span>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <span class="badge badge-pill"
+                                          t-att-class="record.status.raw_value === 'available' ? 'badge-success' : record.status.raw_value === 'sold' ? 'badge-danger' : 'badge-warning'">
+                                        <field name="status"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_car_search" model="ir.ui.view">
+        <field name="name">car.dealership.car.search</field>
+        <field name="model">car.dealership.car</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name"/>
+                <field name="vin"/>
+                <field name="make_id"/>
+                <field name="model_id"/>
+                <field name="year"/>
+                <field name="color_exterior"/>
+                <filter string="Available" name="available" domain="[('status', '=', 'available')]"/>
+                <filter string="Sold" name="sold" domain="[('status', '=', 'sold')]"/>
+                <filter string="Leased" name="leased" domain="[('status', '=', 'leased')]"/>
+                <filter string="New Cars" name="new" domain="[('condition', '=', 'new')]"/>
+                <filter string="Used Cars" name="used" domain="[('condition', '=', 'used')]"/>
+                <separator/>
+                <filter string="High Mileage" name="high_mileage" domain="[('mileage', '>', 100000)]"/>
+                <filter string="Low Mileage" name="low_mileage" domain="[('mileage', '&lt;', 50000)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_make" string="Make" context="{'group_by': 'make_id'}"/>
+                    <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
+                    <filter name="group_condition" string="Condition" context="{'group_by': 'condition'}"/>
+                    <filter name="group_year" string="Year" context="{'group_by': 'year'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="action_car" model="ir.actions.act_window">
+        <field name="name">Cars</field>
+        <field name="res_model">car.dealership.car</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="search_view_id" ref="view_car_search"/>
+        <field name="context">{'search_default_available': 1}</field>
+    </record>
+
+    <record id="action_car_available" model="ir.actions.act_window">
+        <field name="name">Available Cars</field>
+        <field name="res_model">car.dealership.car</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[('status', '=', 'available')]</field>
+    </record>
+
+    <record id="action_car_sold" model="ir.actions.act_window">
+        <field name="name">Sold Cars</field>
+        <field name="res_model">car.dealership.car</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('status', '=', 'sold')]</field>
+    </record>
+</odoo>

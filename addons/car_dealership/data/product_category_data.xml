@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Main Dealership Category -->
+    <record id="product_category_dealership_vehicles" model="product.category">
+        <field name="name">Dealership Vehicles</field>
+        <field name="property_cost_method">fifo</field>
+        <field name="property_valuation">real_time</field>
+        <field name="property_stock_account_input_categ_id" ref="account_dealership_stock_input"/>
+        <field name="property_stock_account_output_categ_id" ref="account_dealership_stock_output"/>
+        <field name="property_stock_valuation_account_id" ref="account_dealership_stock_valuation"/>
+    </record>
+
+    <!-- Owner Products Category -->
+    <record id="product_category_owner_products" model="product.category">
+        <field name="name">Owner Products</field>
+        <field name="parent_id" ref="product_category_dealership_vehicles"/>
+        <field name="property_cost_method">fifo</field>
+        <field name="property_valuation">real_time</field>
+        <field name="property_stock_account_input_categ_id" ref="account_dealership_stock_input"/>
+        <field name="property_stock_account_output_categ_id" ref="account_dealership_stock_output"/>
+        <field name="property_stock_valuation_account_id" ref="account_dealership_stock_valuation"/>
+    </record>
+
+    <!-- Dealer Network Products Category -->
+    <record id="product_category_dealer_network_products" model="product.category">
+        <field name="name">Dealer Network Products</field>
+        <field name="parent_id" ref="product_category_dealership_vehicles"/>
+        <field name="property_cost_method">fifo</field>
+        <field name="property_valuation">real_time</field>
+        <field name="property_stock_account_input_categ_id" ref="account_dealership_stock_input"/>
+        <field name="property_stock_account_output_categ_id" ref="account_dealership_stock_output"/>
+        <field name="property_stock_valuation_account_id" ref="account_dealership_stock_valuation"/>
+    </record>
+
+    <!-- Consigned Products Category -->
+    <record id="product_category_consigned_products" model="product.category">
+        <field name="name">Consigned Products</field>
+        <field name="parent_id" ref="product_category_dealership_vehicles"/>
+        <field name="property_cost_method">standard</field>
+        <field name="property_valuation">manual_periodic</field>
+    </record>
+</odoo>

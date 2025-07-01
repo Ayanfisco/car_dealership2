@@ -11,11 +11,11 @@ services:
     restart: always
 
   odoo:
-    image: odoo:17
+    image: odoo:18.0
     depends_on:
       - db
     ports:
-      - "8067:8069"
+      - "8068:8069"
     environment:
       - HOST=db
       - USER=odoo

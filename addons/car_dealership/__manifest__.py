@@ -1,40 +1,78 @@
 {
-    'name': 'car_dealership',
-    'version': '1.0',
-    'description': """The Car Dealership module provides an all-in-one solution for managing car dealership operations within Odoo. Key features include:
-        - **Car Inventory Management**: Track new and used cars with detailed specifications (make, model, VIN, mileage, etc.).
-        - **Sales and Leasing**: Handle sales orders and lease contracts with automated invoicing for monthly payments and down payments.
-        - **Test Drives**: Schedule and manage customer test drive bookings.
-        - **Service Appointments**: Organize maintenance, repairs, and inspections with scheduling capabilities.
-        - **Customer Portal**: Allow customers to view their lease details and book test drives.
-        - **Reporting**: Generate lease contract reports and analyze dealership performance with dashboards.
-        This module integrates seamlessly with Odoo's Sales, Accounting, and Portal modules for a streamlined dealership experience.
+    'name': 'Car Dealership Management',
+    'version': '18.0.1.0.0',
+    'category': 'Sales/Inventory',
+    'summary': 'Advanced Car Dealership Management System with Fleet Integration',
+    'description': """
+        Modern Car Dealership Management System for Odoo 18
+        ===================================================
+
+        This module provides comprehensive car dealership management with three business models:
+        * Owner's Products: Direct inventory management
+        * Dealer Network Products: Commission-based sales
+        * Consigned Products: Third-party consignment sales
+
+        Features:
+        * Integration with Odoo 18 Fleet Management
+        * Advanced vehicle tracking with VIN/Serial numbers
+        * Automated accounting entries for all business scenarios
+        * Commission management and profit tracking
+        * Modern UI with enhanced reporting
+        * Multi-location support
+
+        Built for Odoo 18 with modern best practices.
     """,
-    'author': 'Ojo Ayanfe - Mattobel',
-    'category': 'Sales',
-    'depends': ['base', 'product', 'sale_management', 'account', 'contacts',
-                'web'],
-    'data': [
-        'security/ir.model.access.csv',
-        'data/sequences.xml',
-        'views/car_views.xml',
-        'views/car_lease_views.xml',
-        'views/car_model_views.xml',
-        'views/car_make_views.xml',
-        'views/car_feature_views.xml',
-        'views/car_service_views.xml',
-        'views/test_drive_views.xml',
-        'views/website_templates.xml',
-        'views/menus.xml',
+    'author': 'Ayanfe - Mattobell',
+    'website': 'https://mattobellonline.com/',
+    'license': 'LGPL-3',
+    'depends': [
+        'base',
+        'fleet',
+        'stock',
+        'purchase',
+        'sale',
+        'account',
+        'product',
+        'stock_account',
+        'partner_autocomplete',
+        'sale_stock',
+        'sale_pdf_quote_builder',
     ],
-    'assets': {
-        'web.assets_frontend': [
-            'car_dealership/static/src/scss/website_styles.scss',
-            'car_dealership/static/src/js/website_scripts.js',
-        ],
-    },
-    'images': ['static/description/banner.png'],
+    'data': [
+        # Security
+        'security/dealership_security.xml',
+        'security/ir.model.access.csv',
+
+        # Data
+        'data/dealership_data.xml',
+        'data/product_category_data.xml',
+
+        # Views
+        'views/dealership_vehicle_views.xml',
+        # 'views/dealership_product_views.xml',
+        # 'views/dealership_purchase_views.xml',
+        # 'views/dealership_sale_views.xml',
+        # 'views/res_config_settings_views.xml',
+
+        # Menus
+        'views/dealership_menus.xml',
+        #
+        # # Reports
+        # 'reports/dealership_reports.xml',
+        # 'reports/profit_analysis_report.xml',
+    ],
+    # 'demo': [
+    #     'demo/dealership_demo.xml',
+    # ],
+    # 'assets': {
+    #     'web.assets_backend': [
+    #         'car_dealership/static/src/css/dealership.css',
+    #         'car_dealership/static/src/js/dealership_widgets.js',
+    #     ],
+    # },
+    # 'images': ['static/description/banner.png'],
     'installable': True,
     'auto_install': False,
     'application': True,
+    'sequence': 95,
 }

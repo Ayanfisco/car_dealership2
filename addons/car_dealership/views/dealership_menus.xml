@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Main Dealership Menu -->
+    <menuitem id="menu_dealership_root"
+              name="Dealership"
+              sequence="85"
+              web_icon="car_dealership,static/description/icon.png"/>
+
+    <!-- Vehicles Menu -->
+    <menuitem id="menu_dealership_vehicles"
+              name="Vehicles"
+              parent="menu_dealership_root"
+              sequence="10"/>
+
+    <menuitem id="menu_dealership_vehicle_all"
+              name="All Vehicles"
+              parent="menu_dealership_vehicles"
+              action="action_dealership_vehicle"
+              sequence="10"/>
+
+    <menuitem id="menu_dealership_vehicle_available"
+              name="Available Vehicles"
+              parent="menu_dealership_vehicles"
+              action="action_dealership_vehicle_available"
+              sequence="20"/>
+
+    <menuitem id="menu_dealership_vehicle_sold"
+              name="Sold Vehicles"
+              parent="menu_dealership_vehicles"
+              action="action_dealership_vehicle_sold"
+              sequence="30"/>
+
+    <!-- Purchases Menu -->
+    <menuitem id="menu_dealership_purchases"
+              name="Purchases"
+              parent="menu_dealership_root"
+              sequence="20"/>
+
+    <menuitem id="menu_dealership_purchase_orders"
+              name="Purchase Orders"
+              parent="menu_dealership_purchases"
+              action="purchase.purchase_form_action"
+              sequence="10"/>
+
+    <menuitem id="menu_dealership_products"
+              name="Products"
+              parent="menu_dealership_purchases"
+              action="product.product_template_action"
+              sequence="20"/>
+
+    <!-- Sales Menu -->
+    <menuitem id="menu_dealership_sales"
+              name="Sales"
+              parent="menu_dealership_root"
+              sequence="30"/>
+
+    <menuitem id="menu_dealership_sale_orders"
+              name="Sales Orders"
+              parent="menu_dealership_sales"
+              action="sale.action_orders"
+              sequence="10"/>
+
+    <menuitem id="menu_dealership_customers"
+              name="Customers"
+              parent="menu_dealership_sales"
+              action="base.action_partner_customer_form"
+              sequence="20"/>
+
+    <!-- Reports Menu -->
+    <menuitem id="menu_dealership_reports"
+              name="Reports"
+              parent="menu_dealership_root"
+              sequence="40"/>
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_dealership_configuration"
+              name="Configuration"
+              parent="menu_dealership_root"
+              sequence="50"/>
+
+    <menuitem id="menu_dealership_config_makes"
+              name="Vehicle Makes"
+              parent="menu_dealership_configuration"
+              action="fleet.fleet_vehicle_model_brand_action"
+              sequence="10"/>
+
+    <menuitem id="menu_dealership_config_models"
+              name="Vehicle Models"
+              parent="menu_dealership_configuration"
+              action="fleet.fleet_vehicle_model_action"
+              sequence="20"/>
+
+    <menuitem id="menu_dealership_config_categories"
+              name="Product Categories"
+              parent="menu_dealership_configuration"
+              action="product.product_category_action_form"
+              sequence="30"/>
+
+    <menuitem id="menu_dealership_config_vendors"
+              name="Vendors"
+              parent="menu_dealership_configuration"
+              action="base.action_partner_supplier_form"
+              sequence="40"/>
+</odoo>

@@ -55,6 +55,7 @@ class DealershipVehicle(models.Model):
     selling_price = fields.Monetary('Selling Price', currency_field='currency_id', tracking=True)
     currency_id = fields.Many2one('res.currency', string='Currency',
                                   default=lambda self: self.env.company.currency_id)
+    sale_order_line_id = fields.Many2one('sale.order.line', string='Sale Order Line')
 
     # Commission fields for dealer network and consigned products
     commission_type = fields.Selection([
@@ -319,7 +320,7 @@ class DealershipVehicle(models.Model):
                 'odometer': self.mileage,
                 'fuel_type': self.fuel_type,
                 'transmission': self.transmission,
-                'engine_size': self.engine_size,
+                # 'engine_size': self.engine_size,
                 'category_id': self.fleet_category_id,
                 'model_year': self.year,
                 'acquisition_date': fields.Date.today(),

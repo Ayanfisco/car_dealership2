@@ -93,13 +93,13 @@
                                     <field name="profit_percentage" readonly="1"/>
                                 </group>
 
-                                <group name="commission" invisible="business_type == 'owner'">
-                                    <field name="vendor_id" required="business_type != 'owner'"/>
-                                    <field name="commission_type" required="business_type != 'owner'"/>
-                                    <field name="commission_value" required="business_type != 'owner'"/>
-                                    <field name="commission_amount" widget="monetary" readonly="1"/>
-                                    <field name="net_payable" widget="monetary" readonly="1"/>
-                                </group>
+<!--                                <group name="commission" invisible="business_type == 'owner'">-->
+<!--                                    <field name="vendor_id" required="business_type != 'owner'"/>-->
+<!--                                    <field name="commission_type" required="business_type != 'owner'"/>-->
+<!--                                    <field name="commission_value" required="business_type != 'owner'"/>-->
+<!--                                    <field name="commission_amount" widget="monetary" readonly="1"/>-->
+<!--                                    <field name="net_payable" widget="monetary" readonly="1"/>-->
+<!--                                </group>-->
                             </group>
                         </page>
 
@@ -108,9 +108,9 @@
                                 <group name="purchase_info">
                                     <field name="purchase_order_line_id" readonly="1"/>
                                 </group>
-<!--                                <group name="sale_info">-->
-<!--                                    <field name="sale_order_line_id" readonly="1"/>-->
-<!--                                </group>-->
+                                <group name="sale_info">
+                                    <field name="sale_order_line_id" readonly="1"/>
+                                </group>
                             </group>
                         </page>
 
@@ -121,7 +121,6 @@
                         </page>
                     </notebook>
                 </sheet>
-
                 <div class="oe_chatter">
                     <field name="message_follower_ids"/>
                     <field name="activity_ids"/>

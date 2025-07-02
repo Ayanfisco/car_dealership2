@@ -37,12 +37,12 @@
         'stock_account',  # Uncommented - this is usually needed
         'sale_stock',
         # Removed potentially problematic dependencies
-        # 'partner_autocomplete',  # This might not be available in your setup
+        'partner_autocomplete',  # This might not be available in your setup
         # 'sale_pdf_quote_builder',  # This might be causing conflicts
     ],
     'data': [
         # Security
-        # 'security/dealership_security.xml',
+        'security/dealership_security.xml',
         'security/ir.model.access.csv',
 
         # Data

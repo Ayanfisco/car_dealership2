@@ -42,7 +42,7 @@
     ],
     'data': [
         # Security
-        'security/dealership_security.xml',
+        # 'security/dealership_security.xml',
         'security/ir.model.access.csv',
 
         # Data

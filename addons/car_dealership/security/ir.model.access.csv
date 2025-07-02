@@ -1,4 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_dealership_vehicle_user,dealership.vehicle user,model_dealership_vehicle,car_dealership.group_dealership_user,1,1,1,0
-access_dealership_vehicle_manager,dealership.vehicle manager,model_dealership_vehicle,car_dealership.group_dealership_manager,1,1,1,1
+access_dealership_vehicle_user,dealership.vehicle user,model_dealership_vehicle,base.group_user,1,1,1,0
+access_dealership_vehicle_manager,dealership.vehicle manager,model_dealership_vehicle,sales_team.group_sale_manager,1,1,1,1
 access_dealership_vehicle_public,dealership.vehicle public,model_dealership_vehicle,,1,0,0,0

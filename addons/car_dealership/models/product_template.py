@@ -73,7 +73,7 @@ class ProductTemplate(models.Model):
             ], limit=1)
         return False
 
-    @api.model_create_multi
+    @api.model
     def create(self, vals):
         """Override create to set up dealership vehicle properly"""
         if vals.get('is_dealership_vehicle'):
@@ -82,7 +82,7 @@ class ProductTemplate(models.Model):
 
             # Set category based on business type
             if vals.get('dealership_business_type'):
-                category = self.env['product.template']._get_dealership_category_by_type(vals['dealership_business_type'])
+                category = self._get_dealership_category_by_type(vals['dealership_business_type'])
                 if category:
                     vals['categ_id'] = category.id
 

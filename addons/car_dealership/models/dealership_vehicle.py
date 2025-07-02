@@ -318,7 +318,7 @@ class DealershipVehicle(models.Model):
                 'vin_sn': self.vin_number,
                 'color': self.color,
                 'odometer': self.mileage,
-                'fuel_type': self.fuel_type,
+                # 'fuel_type': self.fuel_type,
                 'transmission': self.transmission,
                 # 'engine_size': self.engine_size,
                 'category_id': self.fleet_category_id,

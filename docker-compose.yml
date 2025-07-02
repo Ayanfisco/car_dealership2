@@ -25,7 +25,7 @@ services:
       - ./config:/etc/odoo
       - ./enterprise:/mnt/enterprise
       - ./addons:/mnt/extra-addons
-    command: odoo --dev=xml -d car_dealership --db_host=db --db_user=odoo --db_password=odoo --db_port=5432
+    command: odoo --dev=xml -d dealership --db_host=db --db_user=odoo --db_password=odoo --db_port=5432
     restart: always
 
 volumes:

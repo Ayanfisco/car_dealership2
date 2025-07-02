@@ -27,20 +27,22 @@
     'license': 'LGPL-3',
     'depends': [
         'base',
+        'mail',
         'fleet',
         'stock',
         'purchase',
         'sale',
         'account',
         'product',
-        'stock_account',
-        'partner_autocomplete',
+        'stock_account',  # Uncommented - this is usually needed
         'sale_stock',
-        'sale_pdf_quote_builder',
+        # Removed potentially problematic dependencies
+        # 'partner_autocomplete',  # This might not be available in your setup
+        # 'sale_pdf_quote_builder',  # This might be causing conflicts
     ],
     'data': [
         # Security
-        'security/dealership_security.xml',
+        # 'security/dealership_security.xml',
         'security/ir.model.access.csv',
 
         # Data
@@ -56,21 +58,7 @@
 
         # Menus
         'views/dealership_menus.xml',
-        #
-        # # Reports
-        # 'reports/dealership_reports.xml',
-        # 'reports/profit_analysis_report.xml',
     ],
-    # 'demo': [
-    #     'demo/dealership_demo.xml',
-    # ],
-    # 'assets': {
-    #     'web.assets_backend': [
-    #         'car_dealership/static/src/css/dealership.css',
-    #         'car_dealership/static/src/js/dealership_widgets.js',
-    #     ],
-    # },
-    # 'images': ['static/description/banner.png'],
     'installable': True,
     'auto_install': False,
     'application': True,

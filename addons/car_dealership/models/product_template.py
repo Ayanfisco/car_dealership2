@@ -73,7 +73,7 @@ class ProductTemplate(models.Model):
             ], limit=1)
         return False
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals):
         """Override create to set up dealership vehicle properly"""
         if vals.get('is_dealership_vehicle'):

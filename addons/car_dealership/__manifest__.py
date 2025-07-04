@@ -48,9 +48,12 @@
         # Data
         'data/dealership_data.xml',
         'data/product_category_data.xml',
+        'data/dealership_cron.xml',
 
         # Views
         'views/dealership_vehicle_views.xml',
+        'views/dealership_dashboard_views.xml',
+        'views/product_template_views.xml',
         # 'views/dealership_product_views.xml',
         # 'views/dealership_purchase_views.xml',
         # 'views/dealership_sale_views.xml',
@@ -58,6 +61,13 @@
 
         # Menus
         'views/dealership_menus.xml',
+
+        # Reports
+        'report/dealership_vehicle_report.xml',
+        'security/dealership_vehicle_rule.xml',
+    ],
+    'demo': [
+        'data/demo_dealership_vehicle.xml',
     ],
     'installable': True,
     'auto_install': False,

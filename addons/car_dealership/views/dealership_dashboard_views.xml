@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dealership_vehicle_dashboard" model="ir.ui.view">
+        <field name="name">dealership.vehicle.dashboard</field>
+        <field name="model">dealership.vehicle</field>
+        <field name="arch" type="xml">
+            <graph string="Vehicles by Business Type" type="bar">
+                <field name="business_type" groupby="1"/>
+                <field name="id" type="count"/>
+            </graph>
+        </field>
+    </record>
+</odoo>

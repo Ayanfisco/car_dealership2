@@ -1,0 +1,23 @@
+# Translation template for Car Dealership module
+msgid ""
+msgstr ""
+"Project-Id-Version: car_dealership 18.0.1.0.0\n"
+"POT-Creation-Date: 2025-07-03\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: model:ir.model.fields,field_description:dealership.vehicle,name
+msgid "Vehicle Name"
+msgstr ""
+
+#: model:ir.model.fields,field_description:dealership.vehicle,vin_number
+msgid "VIN Number"
+msgstr ""
+
+#: model:ir.model.fields,field_description:dealership.vehicle,business_type
+msgid "Business Type"
+msgstr ""
+
+# ...add more as needed...

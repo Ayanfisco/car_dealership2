@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_product_template_form_inherit_dealership" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.dealership</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='purchase_ok']" position="after">
+                <field name="is_vehicle" string="Is Vehicle"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Vehicle" options="{'invisible': [('is_vehicle', '=', False)]}">
+                    <group>
+                        <field name="dealership_business_type"/>
+                        <field name="vehicle_make_id"/>
+                        <field name="vehicle_model_id"/>
+                        <field name="default_commission_type"/>
+                        <field name="default_commission_value"/>
+                        <field name="default_vendor_id"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

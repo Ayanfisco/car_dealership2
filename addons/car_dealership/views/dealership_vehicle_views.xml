@@ -71,13 +71,13 @@
                                     <field name="profit_percentage" readonly="1"/>
                                 </group>
 
-                                <!--                                <group name="commission" invisible="business_type == 'owner'">-->
-                                <!--                                    <field name="vendor_id" required="business_type != 'owner'"/>-->
-                                <!--                                    <field name="commission_type" required="business_type != 'owner'"/>-->
-                                <!--                                    <field name="commission_value" required="business_type != 'owner'"/>-->
-                                <!--                                    <field name="commission_amount" widget="monetary" readonly="1"/>-->
-                                <!--                                    <field name="net_payable" widget="monetary" readonly="1"/>-->
-                                <!--                                </group>-->
+                                <group name="commission" options="{'invisible': [('business_type', '=', 'owner')]}">
+                                    <field name="vendor_id" options="{'required': [('business_type', '!=', 'owner')]}"/>
+                                    <field name="commission_type" options="{'required': [('business_type', '!=', 'owner')]}"/>
+                                    <field name="commission_value" options="{'required': [('business_type', '!=', 'owner')]}"/>
+                                    <field name="commission_amount" widget="monetary" readonly="1"/>
+                                    <field name="net_payable" widget="monetary" readonly="1"/>
+                                </group>
                             </group>
                         </page>
 

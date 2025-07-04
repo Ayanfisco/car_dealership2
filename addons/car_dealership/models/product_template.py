@@ -20,6 +20,7 @@ class ProductTemplate(models.Model):
     default_commission_value = fields.Float('Default Commission Value')
     default_vendor_id = fields.Many2one('res.partner', string='Default Vendor/Consignor',
                                         help="Default dealer or consignor for this product type")
+    is_vehicle = fields.Boolean('Is Vehicle', default=False, help="Check if this product is a vehicle. If checked, a record will be created in both Fleet and Car Dealership modules.")
 
     @api.onchange('is_dealership_vehicle')
     def _onchange_is_dealership_vehicle(self):
@@ -75,15 +76,88 @@ class ProductTemplate(models.Model):
 
     @api.model
     def create(self, vals):
-        """Override create to set up dealership vehicle properly"""
-        if vals.get('is_dealership_vehicle'):
-            vals['type'] = 'consu'  # Use 'type' instead of 'detailed_type' for Odoo 18
-            vals['tracking'] = 'serial'  # Ensure tracking by serial number
+        if vals.get('is_vehicle'):
+            vals['type'] = 'product'  # Make it storable
+            vals['tracking'] = 'serial'  # Enable serial tracking
+            # Check for existing product with same make, model, and year
+            domain = [
+                ('is_vehicle', '=', True),
+                ('vehicle_make_id', '=', vals.get('vehicle_make_id')),
+                ('vehicle_model_id', '=', vals.get('vehicle_model_id')),
+                ('year', '=', vals.get('year'))
+            ]
+            existing = self.env['product.template'].search(domain, limit=1)
+            if existing:
+                # Increase inventory for existing product
+                stock_location = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
+                if stock_location:
+                    self.env['stock.quant'].create({
+                        'product_id': existing.id,
+                        'location_id': stock_location.id,
+                        'quantity': 1.0,
+                        'inventory_quantity': 1.0,
+                    })
+                return existing
+        product = super().create(vals)
+        if vals.get('is_vehicle'):
+            # Create Fleet Vehicle
+            fleet_vals = {
+                'model_id': vals.get('vehicle_model_id'),
+                'brand_id': vals.get('vehicle_make_id'),
+                'license_plate': product.name,
+            }
+            fleet_vehicle = self.env['fleet.vehicle'].create(fleet_vals)
+            # Create Dealership Vehicle
+            dealership_vals = {
+                'name': product.name,
+                'make_id': vals.get('vehicle_make_id'),
+                'model_id': vals.get('vehicle_model_id'),
+                'product_id': product.id,
+                'fleet_vehicle_id': fleet_vehicle.id,
+                'business_type': vals.get('dealership_business_type') or 'owner',
+            }
+            self.env['dealership.vehicle'].create(dealership_vals)
+            # Create incoming stock move for inventory
+            stock_location = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
+            if stock_location:
+                self.env['stock.quant'].create({
+                    'product_id': product.id,
+                    'location_id': stock_location.id,
+                    'quantity': 1.0,
+                    'inventory_quantity': 1.0,
+                })
+        return product
 
-            # Set category based on business type
-            if vals.get('dealership_business_type'):
-                category = self._get_dealership_category_by_type(vals['dealership_business_type'])
-                if category:
-                    vals['categ_id'] = category.id
-
-        return super().create(vals)
+    def write(self, vals):
+        res = super().write(vals)
+        for product in self:
+            if vals.get('is_vehicle') and not self.env['dealership.vehicle'].search([('product_id', '=', product.id)]):
+                product.type = 'product'
+                product.tracking = 'serial'
+                # Create Fleet Vehicle if not exists
+                fleet_vals = {
+                    'model_id': product.vehicle_model_id.id,
+                    'brand_id': product.vehicle_make_id.id,
+                    'license_plate': product.name,
+                }
+                fleet_vehicle = self.env['fleet.vehicle'].create(fleet_vals)
+                # Create Dealership Vehicle if not exists
+                dealership_vals = {
+                    'name': product.name,
+                    'make_id': product.vehicle_make_id.id,
+                    'model_id': product.vehicle_model_id.id,
+                    'product_id': product.id,
+                    'fleet_vehicle_id': fleet_vehicle.id,
+                    'business_type': product.dealership_business_type or 'owner',
+                }
+                self.env['dealership.vehicle'].create(dealership_vals)
+                # Create incoming stock move for inventory
+                stock_location = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
+                if stock_location:
+                    self.env['stock.quant'].create({
+                        'product_id': product.id,
+                        'location_id': stock_location.id,
+                        'quantity': 1.0,
+                        'inventory_quantity': 1.0,
+                    })
+        return res

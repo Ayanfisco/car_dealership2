@@ -1,5 +1,8 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class DealershipVehicle(models.Model):
@@ -17,8 +20,8 @@ class DealershipVehicle(models.Model):
     # Business Type
     business_type = fields.Selection([
         ('owner', 'Owner Product'),
-        # ('dealer_network', 'Dealer Network Product'),
-        # ('consigned', 'Consigned Product')
+        ('dealer_network', 'Dealer Network Product'),
+        ('consigned', 'Consigned Product')
     ], string='Business Type', required=True, default='owner', tracking=True)
 
     # Vehicle Details
@@ -89,6 +92,12 @@ class DealershipVehicle(models.Model):
     profit_amount = fields.Monetary('Profit Amount', currency_field='currency_id',
                                     compute='_compute_profit_amount', store=True)
     profit_percentage = fields.Float('Profit %', compute='_compute_profit_percentage', store=True)
+
+    # Add SQL constraint to prevent duplicates at database level
+    _sql_constraints = [
+        ('unique_model_year', 'UNIQUE(model_id, year)',
+         'A vehicle with this model and year already exists in the system!')
+    ]
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -276,6 +285,23 @@ class DealershipVehicle(models.Model):
                 if existing:
                     raise ValidationError(_('VIN Number must be unique. This VIN already exists.'))
 
+    @api.constrains('model_id', 'year')
+    def _check_duplicate_model_year(self):
+        """Check for duplicate model and year combination"""
+        for record in self:
+            if record.model_id and record.year:
+                existing = self.search([
+                    ('model_id', '=', record.model_id.id),
+                    ('year', '=', record.year),
+                    ('id', '!=', record.id)
+                ])
+                if existing:
+                    raise ValidationError(
+                        _('A vehicle with model "%s" and year "%s" already exists in the system.\n'
+                          'Existing vehicle: %s') %
+                        (record.model_id.name, record.year, existing[0].name)
+                    )
+
     @api.constrains('business_type', 'vendor_id', 'commission_type', 'commission_value')
     def _check_business_type_requirements(self):
         for record in self:
@@ -338,3 +364,9 @@ class DealershipVehicle(models.Model):
         if products_to_delete:
             products_to_delete.unlink()
         return result
+
+    def _send_maintenance_reminders(self):
+        # Example: log a message for demonstration
+        _logger.info('Scheduled: Maintenance reminders sent for dealership vehicles.')
+        # Implement actual reminder logic here
+        return True

@@ -18,8 +18,9 @@
                         class="btn-secondary" invisible="fleet_vehicle_id"/>
                 <field name="state" widget="statusbar" statusbar_visible="available,reserved,sold"/>
             </header>
-            <xpath expr="//field[@name='purchase_ok']" position="after">
+            <xpath expr="//label[@for='purchase_ok']" position="after">
                 <field name="is_vehicle"/>
+                <label for="is_vehicle"/>
             </xpath>
             <xpath expr="//notebook/page[1]" position="before">
                 <page string="Vehicle" invisible="not is_vehicle">

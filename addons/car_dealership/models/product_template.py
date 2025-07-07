@@ -115,6 +115,15 @@ class ProductTemplate(models.Model):
             self.vehicle_make_id = False
             self.vehicle_model_id = False
 
+    @api.onchange('model_id', 'year', 'color')
+    def _onchange_vehicle_details(self):
+        if self.model_id:
+            name_parts = [self.model_id.brand_id.name, self.model_id.name]
+            if self.year:
+                name_parts.append(str(self.year))
+            if self.color:
+                name_parts.append(self.color)
+            self.name = ' '.join(name_parts)
     @api.onchange('dealership_business_type')
     def _onchange_dealership_business_type(self):
         if self.dealership_business_type:
@@ -158,7 +167,7 @@ class ProductTemplate(models.Model):
     @api.model
     def create(self, vals):
         if vals.get('is_vehicle'):
-            vals['detailed_type'] = 'product'  # Make it storable (Odoo 17+/18)
+            vals['type'] = 'consu'  # Make it storable (Odoo 17+/18)
             vals['tracking'] = 'serial'  # Enable serial tracking
             # Check for existing template with same make/model/year
             domain = [
@@ -197,7 +206,7 @@ class ProductTemplate(models.Model):
                 )
                 if variant:
                     # Ensure variant is storable
-                    variant.detailed_type = 'product'
+                    variant.type = 'consu'
                     # Increase inventory for existing variant
                     stock_location = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
                     if stock_location:
@@ -224,18 +233,18 @@ class ProductTemplate(models.Model):
         # Ensure all variants are storable if is_vehicle
         if product.is_vehicle:
             for variant in product.product_variant_ids:
-                variant.detailed_type = 'product'
+                variant.type = 'consu'
         return product
 
     def write(self, vals):
         res = super().write(vals)
         for product in self:
             if vals.get('is_vehicle'):
-                product.detailed_type = 'product'
+                product.type = 'consu'
                 for variant in product.product_variant_ids:
-                    variant.detailed_type = 'product'
+                    variant.type = 'consu'
             if vals.get('is_vehicle') and not self.env['dealership.vehicle'].search([('product_id', '=', product.id)]):
-                product.detailed_type = 'product'
+                product.type = 'consu'
                 product.tracking = 'serial'
                 # Create Fleet Vehicle if not exists
                 fleet_vals = {

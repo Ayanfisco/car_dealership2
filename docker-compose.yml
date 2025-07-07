@@ -20,6 +20,7 @@ services:
       - HOST=db
       - USER=odoo
       - PASSWORD=odoo
+      - ODOO_EXTRA_ADDONS=account,sale,your_module
     volumes:
       - odoo-web-data:/var/lib/odoo
       - ./config:/etc/odoo

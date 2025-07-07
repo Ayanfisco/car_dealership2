@@ -1,27 +1,158 @@
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError, ValidationError
+import logging
 
 class ProductTemplate(models.Model):
     """Extended product template for dealership vehicles"""
     _inherit = 'product.template'
 
     # Dealership specific fields
-    is_dealership_vehicle = fields.Boolean('Is Dealership Vehicle', default=False)
-    dealership_business_type = fields.Selection([
+    # is_dealership_vehicle = fields.Boolean('Is Dealership Vehicle', default=False)
+    name = fields.Char('Vehicle Name', required=True, tracking=True)
+    vin_number = fields.Char('VIN Number', tracking=True, help="Vehicle Identification Number")
+    fleet_vehicle_id = fields.Many2one('fleet.vehicle', string='Fleet Vehicle', ondelete='cascade')
+    product_id = fields.Many2one('product.product', string='Product', ondelete='cascade')
+
+    # Business Type
+    business_type = fields.Selection([
         ('owner', 'Owner Product'),
         ('dealer_network', 'Dealer Network Product'),
         ('consigned', 'Consigned Product')
-    ], string='Dealership Business Type')
-    vehicle_make_id = fields.Many2one('fleet.vehicle.model.brand', string='Vehicle Make')
-    vehicle_model_id = fields.Many2one('fleet.vehicle.model', string='Vehicle Model')
-    default_commission_type = fields.Selection([
+    ], string='Business Type', required=True, default='owner', tracking=True)
+
+    # Vehicle Details
+    make_id = fields.Many2one('fleet.vehicle.model.brand', string='Make', required=True)
+    model_id = fields.Many2one('fleet.vehicle.model', string='Model', required=True)
+    year = fields.Integer('Year', tracking=True)
+    color = fields.Char('Color', tracking=True)
+    engine_size = fields.Char('Engine Size', tracking=True, help="Engine size in liters or cc")
+    mileage = fields.Float('Mileage (km)', tracking=True)
+    fleet_category_id = fields.Many2one('fleet.vehicle.model.category', string='Body Type')
+    fuel_type = fields.Selection([
+        ('petrol', 'Petrol'),
+        ('gasoline', 'Gasoline'),
+        ('diesel', 'Diesel'),
+        ('hybrid', 'Hybrid'),
+        ('electric', 'Electric'),
+        ('cng', 'CNG'),
+        ('other', 'Other')
+    ], string='Fuel Type', tracking=True)
+    condition = fields.Selection([
+        ('new', 'Brand New'),
+        ('foreign_used', 'Foreign Used'),
+        ('local_used', 'Local Used')
+    ])
+    transmission = fields.Selection([
+        ('amt', 'AMT'),
+        ('manual', 'Manual'),
+        ('automatic', 'Automatic'),
+        ('cvt', 'CVT')
+    ], string='Transmission', tracking=True)
+
+    # Financial Information
+    purchase_price = fields.Monetary('Cost Price', currency_field='currency_id', tracking=True)
+    selling_price = fields.Monetary('Selling Price', currency_field='currency_id', tracking=True)
+    currency_id = fields.Many2one('res.currency', string='Currency',
+                                  default=lambda self: self.env.company.currency_id)
+    sale_order_line_id = fields.Many2one('sale.order.line', string='Sale Order Line')
+
+    # Commission fields for dealer network and consigned products
+    commission_type = fields.Selection([
         ('percentage', 'Percentage'),
         ('fixed', 'Fixed Amount')
-    ], string='Default Commission Type')
-    default_commission_value = fields.Float('Default Commission Value')
-    default_vendor_id = fields.Many2one('res.partner', string='Default Vendor/Consignor',
-                                        help="Default dealer or consignor for this product type")
+    ], string='Commission Type', tracking=True)
+    commission_value = fields.Float('Commission Value', tracking=True)
+    commission_amount = fields.Monetary('Commission Amount', currency_field='currency_id',
+                                        compute='_compute_commission_amount', store=True)
+    net_payable = fields.Monetary('Net Payable', currency_field='currency_id',
+                                  compute='_compute_net_payable', store=True)
+
+    # Status
+    state = fields.Selection([
+        ('available', 'Available'),
+        ('reserved', 'Reserved'),
+        ('sold', 'Sold'),
+        ('returned', 'Returned')
+    ], string='Status', default='available', tracking=True)
+
+    # Relations
+    vendor_id = fields.Many2one('res.partner', string='Vendor/Consignor',
+                                help="Dealer or consignor for non-owner products")
+    purchase_order_line_id = fields.Many2one('purchase.order.line', string='Purchase Order Line')
+
+    # Images and Documents
+    image_1920 = fields.Image('Image', max_width=1920, max_height=1920)
+    image_128 = fields.Image('Image 128', related='image_1920', max_width=128, max_height=128, store=True)
+
+    # Computed fields
+    profit_amount = fields.Monetary('Profit Amount', currency_field='currency_id',
+                                    compute='_compute_profit_amount', store=True)
+    profit_percentage = fields.Float('Profit %', compute='_compute_profit_percentage', store=True)
+
+    # Quantity field
+    quantity = fields.Integer('Quantity', default=1, tracking=True,
+                              help="Number of vehicles of this make/model/year/color in stock.")
+
+    # Add SQL constraint to prevent duplicates at database level
+    _sql_constraints = [
+        ('unique_model_year', 'UNIQUE(model_id, year)',
+         'A vehicle with this model and year already exists in the system!')
+    ]
     is_vehicle = fields.Boolean('Is Vehicle', default=False, help="Check if this product is a vehicle. If checked, a record will be created in both Fleet and Car Dealership modules.")
 
+    @api.depends('purchase_price', 'commission_type', 'commission_value')
+    def _compute_commission_amount(self):
+        for record in self:
+            if record.business_type in ['dealer_network', 'consigned'] and record.purchase_price:
+                if record.commission_type == 'percentage':
+                    record.commission_amount = record.purchase_price * (record.commission_value / 100)
+                elif record.commission_type == 'fixed':
+                    record.commission_amount = record.commission_value
+                else:
+                    record.commission_amount = 0.0
+            else:
+                record.commission_amount = 0.0
+
+    @api.depends('purchase_price', 'commission_amount')
+    def _compute_net_payable(self):
+        for record in self:
+            if record.business_type in ['dealer_network', 'consigned']:
+                record.net_payable = record.purchase_price - record.commission_amount
+            else:
+                record.net_payable = record.purchase_price
+
+    @api.depends('selling_price', 'purchase_price', 'commission_amount', 'business_type')
+    def _compute_profit_amount(self):
+        for record in self:
+            if record.selling_price and record.purchase_price:
+                if record.business_type == 'owner':
+                    record.profit_amount = record.selling_price - record.purchase_price
+                elif record.business_type in ['dealer_network', 'consigned']:
+                    record.profit_amount = record.selling_price - record.net_payable
+                else:
+                    record.profit_amount = 0.0
+            else:
+                record.profit_amount = 0.0
+
+    @api.depends('profit_amount', 'purchase_price')
+    def _compute_profit_percentage(self):
+        for record in self:
+            if record.purchase_price:
+                record.profit_percentage = (record.profit_amount / record.purchase_price) * 100
+            else:
+                record.profit_percentage = 0.0
+
+    @api.onchange('make_id')
+    def _onchange_make_id(self):
+        """Clear model when make changes"""
+        if self.make_id:
+            # Clear the model field and set domain
+            self.model_id = False
+            return {'domain': {'model_id': [('brand_id', '=', self.make_id.id)]}}
+        else:
+            # If no make selected, clear model and show no models
+            self.model_id = False
+            return {'domain': {'model_id': [('id', '=', False)]}}
     @api.onchange('is_dealership_vehicle')
     def _onchange_is_dealership_vehicle(self):
         if self.is_dealership_vehicle:
@@ -77,62 +208,84 @@ class ProductTemplate(models.Model):
     @api.model
     def create(self, vals):
         if vals.get('is_vehicle'):
-            vals['type'] = 'product'  # Make it storable
+            vals['detailed_type'] = 'product'  # Make it storable (Odoo 17+/18)
             vals['tracking'] = 'serial'  # Enable serial tracking
-            # Check for existing product with same make, model, and year
+            # Check for existing template with same make/model/year
             domain = [
                 ('is_vehicle', '=', True),
                 ('vehicle_make_id', '=', vals.get('vehicle_make_id')),
                 ('vehicle_model_id', '=', vals.get('vehicle_model_id')),
                 ('year', '=', vals.get('year'))
             ]
-            existing = self.env['product.template'].search(domain, limit=1)
-            if existing:
-                # Increase inventory for existing product
-                stock_location = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
-                if stock_location:
-                    self.env['stock.quant'].create({
-                        'product_id': existing.id,
-                        'location_id': stock_location.id,
-                        'quantity': 1.0,
-                        'inventory_quantity': 1.0,
+            existing_template = self.env['product.template'].search(domain, limit=1)
+            color = vals.get('color')
+            if existing_template:
+                # Check for existing variant with same color
+                color_attribute = self.env['product.attribute'].search([('name', '=', 'Color')], limit=1)
+                if not color_attribute:
+                    color_attribute = self.env['product.attribute'].create({'name': 'Color'})
+                color_value = self.env['product.attribute.value'].search([
+                    ('name', '=', color), ('attribute_id', '=', color_attribute.id)
+                ], limit=1)
+                if not color_value:
+                    color_value = self.env['product.attribute.value'].create({
+                        'name': color,
+                        'attribute_id': color_attribute.id
                     })
-                return existing
+                # Add color attribute to template if not present
+                if color_attribute not in existing_template.attribute_line_ids.mapped('attribute_id'):
+                    self.env['product.template.attribute.line'].create({
+                        'product_tmpl_id': existing_template.id,
+                        'attribute_id': color_attribute.id,
+                        'value_ids': [(6, 0, [color_value.id])]
+                    })
+                # Find or create variant
+                variant = existing_template.product_variant_ids.filtered(
+                    lambda v: v.product_template_attribute_value_ids.filtered(
+                        lambda pav: pav.attribute_id == color_attribute and pav.value_id == color_value
+                    )
+                )
+                if variant:
+                    # Ensure variant is storable
+                    variant.detailed_type = 'product'
+                    # Increase inventory for existing variant
+                    stock_location = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
+                    if stock_location:
+                        self.env['stock.quant'].create({
+                            'product_id': variant.id,
+                            'location_id': stock_location.id,
+                            'quantity': 1.0,
+                            'inventory_quantity': 1.0,
+                        })
+                    return existing_template
+                else:
+                    # Create new variant by updating attribute line
+                    line = existing_template.attribute_line_ids.filtered(lambda l: l.attribute_id == color_attribute)
+                    if line:
+                        line.value_ids = [(4, color_value.id)]
+                    else:
+                        self.env['product.template.attribute.line'].create({
+                            'product_tmpl_id': existing_template.id,
+                            'attribute_id': color_attribute.id,
+                            'value_ids': [(6, 0, [color_value.id])]
+                        })
+                    return existing_template
         product = super().create(vals)
-        if vals.get('is_vehicle'):
-            # Create Fleet Vehicle
-            fleet_vals = {
-                'model_id': vals.get('vehicle_model_id'),
-                'brand_id': vals.get('vehicle_make_id'),
-                'license_plate': product.name,
-            }
-            fleet_vehicle = self.env['fleet.vehicle'].create(fleet_vals)
-            # Create Dealership Vehicle
-            dealership_vals = {
-                'name': product.name,
-                'make_id': vals.get('vehicle_make_id'),
-                'model_id': vals.get('vehicle_model_id'),
-                'product_id': product.id,
-                'fleet_vehicle_id': fleet_vehicle.id,
-                'business_type': vals.get('dealership_business_type') or 'owner',
-            }
-            self.env['dealership.vehicle'].create(dealership_vals)
-            # Create incoming stock move for inventory
-            stock_location = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
-            if stock_location:
-                self.env['stock.quant'].create({
-                    'product_id': product.id,
-                    'location_id': stock_location.id,
-                    'quantity': 1.0,
-                    'inventory_quantity': 1.0,
-                })
+        # Ensure all variants are storable if is_vehicle
+        if product.is_vehicle:
+            for variant in product.product_variant_ids:
+                variant.detailed_type = 'product'
         return product
 
     def write(self, vals):
         res = super().write(vals)
         for product in self:
+            if vals.get('is_vehicle'):
+                product.detailed_type = 'product'
+                for variant in product.product_variant_ids:
+                    variant.detailed_type = 'product'
             if vals.get('is_vehicle') and not self.env['dealership.vehicle'].search([('product_id', '=', product.id)]):
-                product.type = 'product'
+                product.detailed_type = 'product'
                 product.tracking = 'serial'
                 # Create Fleet Vehicle if not exists
                 fleet_vals = {
@@ -161,3 +314,46 @@ class ProductTemplate(models.Model):
                         'inventory_quantity': 1.0,
                     })
         return res
+
+    def action_reserve(self):
+        """Reserve the vehicle"""
+        self.write({'state': 'reserved'})
+        self.message_post(body=_('Vehicle has been reserved.'))
+
+    def action_make_available(self):
+        """Make the vehicle available again"""
+        self.write({'state': 'available'})
+        self.message_post(body=_('Vehicle is now available for sale.'))
+
+    def action_mark_sold(self):
+        """Mark the vehicle as sold"""
+        self.write({'state': 'sold'})
+        self.message_post(body=_('Vehicle has been sold.'))
+
+    def action_return_vehicle(self):
+        """Return consigned vehicle to owner"""
+        if self.business_type != 'consigned':
+            raise UserError(_('Only consigned vehicles can be returned.'))
+        self.write({'state': 'returned'})
+        self.message_post(body=_('Vehicle has been returned to consignor.'))
+
+    def create_fleet_vehicle(self):
+        """Create corresponding fleet vehicle record"""
+        if not self.fleet_vehicle_id:
+            fleet_vals = {
+                'model_id': self.model_id.id,
+                'license_plate': self.vin_number or '',
+                'vin_sn': self.vin_number,
+                'color': self.color,
+                'odometer': self.mileage,
+                # 'fuel_type': self.fuel_type,
+                'transmission': self.transmission,
+                # 'engine_size': self.engine_size,
+                'category_id': self.fleet_category_id,
+                'model_year': self.year,
+                'acquisition_date': fields.Date.today(),
+                'car_value': self.purchase_price,
+            }
+            fleet_vehicle = self.env['fleet.vehicle'].create(fleet_vals)
+            self.fleet_vehicle_id = fleet_vehicle.id
+            self.message_post(body=_('Fleet vehicle record created: %s') % fleet_vehicle.name)

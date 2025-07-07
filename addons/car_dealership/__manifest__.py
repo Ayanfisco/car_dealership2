@@ -27,12 +27,12 @@
     'license': 'LGPL-3',
     'depends': [
         'base',
+        'sale',
+        'account',
         'mail',
         'fleet',
         'stock',
         'purchase',
-        'sale',
-        'account',
         'product',
         'stock_account',  # Uncommented - this is usually needed
         'sale_stock',
@@ -54,7 +54,6 @@
         'views/dealership_vehicle_views.xml',
         'views/dealership_dashboard_views.xml',
         'views/product_template_views.xml',
-        # 'views/dealership_product_views.xml',
         # 'views/dealership_purchase_views.xml',
         # 'views/dealership_sale_views.xml',
         # 'views/res_config_settings_views.xml',
@@ -73,4 +72,5 @@
     'auto_install': False,
     'application': True,
     'sequence': 95,
+    # 'post_init_hook': 'check_sale_installed',
 }

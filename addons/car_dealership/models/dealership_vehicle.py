@@ -93,6 +93,9 @@ class DealershipVehicle(models.Model):
                                     compute='_compute_profit_amount', store=True)
     profit_percentage = fields.Float('Profit %', compute='_compute_profit_percentage', store=True)
 
+    # Quantity field
+    quantity = fields.Integer('Quantity', default=1, tracking=True, help="Number of vehicles of this make/model/year/color in stock.")
+
     # Add SQL constraint to prevent duplicates at database level
     _sql_constraints = [
         ('unique_model_year', 'UNIQUE(model_id, year)',
@@ -101,15 +104,36 @@ class DealershipVehicle(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        """Override create to automatically create corresponding product"""
-        # Create the dealership vehicles first
-        vehicles = super().create(vals_list)
-
-        # Create corresponding products for each vehicle
-        for vehicle in vehicles:
-            vehicle._create_product()
-
-        return vehicles
+        new_vehicles = self.env['dealership.vehicle']
+        for vals in vals_list:
+            domain = [
+                ('make_id', '=', vals.get('make_id')),
+                ('model_id', '=', vals.get('model_id')),
+                ('year', '=', vals.get('year')),
+                ('color', '=', vals.get('color')),
+            ]
+            existing = self.search(domain, limit=1)
+            if existing:
+                existing.quantity += vals.get('quantity', 1)
+                # Ensure product is created and linked
+                if not existing.product_id:
+                    existing._create_product()
+                # Also update product variant stock
+                if existing.product_id:
+                    stock_location = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
+                    if stock_location:
+                        self.env['stock.quant'].create({
+                            'product_id': existing.product_id.id,
+                            'location_id': stock_location.id,
+                            'quantity': vals.get('quantity', 1),
+                            'inventory_quantity': vals.get('quantity', 1),
+                        })
+                new_vehicles += existing
+            else:
+                new_vehicle = super(DealershipVehicle, self).create([vals])
+                new_vehicle._create_product()
+                new_vehicles += new_vehicle
+        return new_vehicles
 
     def _create_product(self):
         """Create corresponding product template for the dealership vehicle"""

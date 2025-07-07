@@ -1,109 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Dealership Vehicle Form View -->
-    <record id="view_dealership_vehicle_form" model="ir.ui.view">
-        <field name="name">dealership.vehicle.form</field>
-        <field name="model">dealership.vehicle</field>
-        <field name="arch" type="xml">
-            <form string="Dealership Vehicle">
-                <header>
-                    <button name="action_reserve" type="object" string="Reserve"
-                            class="btn-primary" invisible="state != 'available'"/>
-                    <button name="action_make_available" type="object" string="Make Available"
-                            class="btn-secondary" invisible="state != 'reserved'"/>
-                    <button name="action_mark_sold" type="object" string="Mark as Sold"
-                            class="btn-success" invisible="state not in ['available', 'reserved']"/>
-                    <button name="action_return_vehicle" type="object" string="Return to Consignor"
-                            class="btn-warning" invisible="business_type != 'consigned' or state != 'available'"/>
-                    <button name="create_fleet_vehicle" type="object" string="Create Fleet Record"
-                            class="btn-secondary" invisible="fleet_vehicle_id"/>
-                    <field name="state" widget="statusbar" statusbar_visible="available,reserved,sold"/>
-                </header>
+    <!-- Remove/Archive Dealership Vehicle Form View (optional, for product-centric workflow) -->
+<!--    <record id="view_dealership_vehicle_form" model="ir.ui.view">-->
+<!--        <field name="active" eval="False"/>-->
+<!--    </record>-->
+    <!-- Optionally, update menu or actions to point only to product.template vehicle views -->
 
-                <sheet>
-                    <div class="oe_button_box" name="button_box">
-                        <button name="%(fleet.fleet_vehicle_action)d" type="action"
-                                class="oe_stat_button" icon="fa-car" invisible="not fleet_vehicle_id"
-                                context="{'default_id': fleet_vehicle_id}">
-                            <div class="o_field_widget o_stat_info">
-                                <span class="o_stat_text">Fleet Record</span>
-                            </div>
-                        </button>
-                    </div>
-
-                    <field name="image_1920" widget="image" class="oe_avatar"/>
-
-                    <div class="oe_title">
-                        <h1>
-                            <field name="name" required="1" placeholder="Vehicle Name"/>
-                        </h1>
-                    </div>
-
-                    <group>
-                        <group name="vehicle_info">
-                            <field name="vin_number"/>
-                            <field name="product_id" readonly="1"/>
-                            <field name="business_type" widget="radio" options="{'horizontal': true}"/>
-                            <field name="make_id" required="1"/>
-                            <field name="model_id" domain="[('brand_id', '=', make_id)]"/>
-                            <field name="year"/>
-                            <field name="color"/>
-                            <field name="mileage"/>
-                        </group>
-
-                        <group name="specs">
-                            <field name="fuel_type"/>
-                            <field name="transmission"/>
-                            <field name="condition"/>
-                            <field name="engine_size"/>
-                            <field name="fleet_category_id" widget="selection"/>
-                            <field name="currency_id" invisible="1"/>
-                        </group>
-                    </group>
-
-                    <notebook>
-                        <page string="Financial Information">
-                            <group>
-                                <group name="pricing">
-                                    <field name="purchase_price" widget="monetary"/>
-                                    <field name="selling_price" widget="monetary"/>
-                                    <field name="profit_amount" widget="monetary" readonly="1"/>
-                                    <field name="profit_percentage" readonly="1"/>
-                                </group>
-
-                                <group name="commission" options="{'invisible': [('business_type', '=', 'owner')]}">
-                                    <field name="vendor_id" options="{'required': [('business_type', '!=', 'owner')]}"/>
-                                    <field name="commission_type" options="{'required': [('business_type', '!=', 'owner')]}"/>
-                                    <field name="commission_value" options="{'required': [('business_type', '!=', 'owner')]}"/>
-                                    <field name="commission_amount" widget="monetary" readonly="1"/>
-                                    <field name="net_payable" widget="monetary" readonly="1"/>
-                                </group>
-                            </group>
-                        </page>
-
-                        <page string="Orders">
-                            <group>
-                                <group name="purchase_info">
-                                    <field name="purchase_order_line_id" readonly="1"/>
-                                </group>
-                                <group name="sale_info">
-                                    <field name="sale_order_line_id" readonly="1"/>
-                                </group>
-                            </group>
-                        </page>
-
-                        <page string="Fleet Integration">
-                            <group>
-                                <field name="fleet_vehicle_id" readonly="1"/>
-                            </group>
-                        </page>
-                    </notebook>
-                </sheet>
-                <!-- Updated chatter structure for Odoo 18 -->
-               <chatter />
-            </form>
-        </field>
-    </record>
     <!-- Dealership Vehicle Tree View -->
     <record id="view_dealership_vehicle_tree" model="ir.ui.view">
         <field name="name">dealership.vehicle.tree</field>
@@ -122,6 +24,7 @@
                 <field name="profit_amount" widget="monetary"/>
                 <field name="state" widget="badge"/>
                 <field name="currency_id" invisible="1"/>
+                <field name="quantity"/>
             </list>
         </field>
     </record>
@@ -183,7 +86,8 @@
                 <field name="purchase_price"/>
                 <field name="selling_price"/>
                 <field name="profit_amount"/>
-                <field name="state"/>
+                <!-- Optionally, remove or comment out the state field to avoid confusion, since workflow is now product-centric -->
+                <!-- <field name="state"/> -->
                 <field name="business_type"/>
                 <field name="image_128"/>
                 <field name="currency_id"/>
@@ -251,9 +155,10 @@
     <!-- Actions -->
     <record id="action_dealership_vehicle" model="ir.actions.act_window">
         <field name="name">Dealership Vehicles</field>
-        <field name="res_model">dealership.vehicle</field>
-        <field name="view_mode">kanban,list,form</field>
-        <field name="context">{'search_default_available': 1}</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,form</field>
+        <field name="domain">[('is_vehicle', '=', True)]</field>
+        <field name="context">{'default_is_vehicle': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create your first dealership vehicle!

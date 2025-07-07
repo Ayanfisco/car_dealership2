@@ -5,21 +5,48 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_only_form_view"/>
         <field name="arch" type="xml">
+            <header>
+                <button name="action_reserve" type="object" string="Reserve"
+                        class="btn-primary" invisible="state != 'available'"/>
+                <button name="action_make_available" type="object" string="Make Available"
+                        class="btn-secondary" invisible="state != 'reserved'"/>
+                <button name="action_mark_sold" type="object" string="Mark as Sold"
+                        class="btn-success" invisible="state not in ['available', 'reserved']"/>
+                <button name="action_return_vehicle" type="object" string="Return to Consignor"
+                        class="btn-warning" invisible="business_type != 'consigned' or state != 'available'"/>
+                <button name="create_fleet_vehicle" type="object" string="Create Fleet Record"
+                        class="btn-secondary" invisible="fleet_vehicle_id"/>
+                <field name="state" widget="statusbar" statusbar_visible="available,reserved,sold"/>
+            </header>
             <xpath expr="//field[@name='purchase_ok']" position="after">
-                <field name="is_vehicle" string="Is Vehicle"/>
+                <field name="is_vehicle"/>
             </xpath>
-            <xpath expr="//notebook" position="inside">
-                <page string="Vehicle" options="{'invisible': [('is_vehicle', '=', False)]}">
+            <xpath expr="//notebook/page[1]" position="before">
+                <page string="Vehicle" invisible="not is_vehicle">
                     <group>
-                        <field name="dealership_business_type"/>
-                        <field name="vehicle_make_id"/>
-                        <field name="vehicle_model_id"/>
-                        <field name="default_commission_type"/>
-                        <field name="default_commission_value"/>
-                        <field name="default_vendor_id"/>
+                        <field name="business_type"/>
+                        <field name="make_id" required="1"/>
+                        <field name="model_id" domain="[('brand_id', '=', make_id)]"/>
+                        <field name="commission_type"/>
+                        <field name="commission_value"/>
+                        <field name="vendor_id"/>
+                        <field name="year"/>
+                        <field name="mileage"/>
                     </group>
                 </page>
             </xpath>
+            <div class="oe_button_box" name="button_box">
+                <button name="%(fleet.fleet_vehicle_action)d" type="action"
+                        class="oe_stat_button" icon="fa-car" invisible="not fleet_vehicle_id"
+                        context="{'default_id': fleet_vehicle_id}">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Fleet Record</span>
+                    </div>
+                </button>
+            </div>
+            <!-- Remove the old Vehicle page if it exists elsewhere -->
+            <!-- <xpath expr="//notebook/page[@string='Vehicle']" position="replace">
+            </xpath> -->
         </field>
     </record>
 </odoo>

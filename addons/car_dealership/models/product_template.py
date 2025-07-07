@@ -21,8 +21,8 @@ class ProductTemplate(models.Model):
     ], string='Business Type', required=True, default='owner', tracking=True)
 
     # Vehicle Details
-    vehicle_make_id = fields.Many2one('fleet.vehicle.model.brand', string='Make', required=True)
-    vehicle_model_id = fields.Many2one('fleet.vehicle.model', string='Model', required=True)
+    make_id = fields.Many2one('fleet.vehicle.model.brand', string='Make', required=True)
+    model_id = fields.Many2one('fleet.vehicle.model', string='Model', required=True)
     year = fields.Integer('Year', tracking=True)
     color = fields.Char('Color', tracking=True)
     engine_size = fields.Char('Engine Size', tracking=True, help="Engine size in liters or cc")
@@ -95,10 +95,13 @@ class ProductTemplate(models.Model):
 
     # Add SQL constraint to prevent duplicates at database level
     _sql_constraints = [
-        ('unique_model_year', 'UNIQUE(vehicle_model_id, year)',
+        ('unique_model_year', 'UNIQUE(model_id, year)',
          'A vehicle with this model and year already exists in the system!')
     ]
     is_vehicle = fields.Boolean('Is Vehicle', default=False, help="Check if this product is a vehicle. If checked, a record will be created in both Fleet and Car Dealership modules.")
+
+    # New field for vehicle year
+    year = fields.Integer('Year', help="Model year of the vehicle")
 
     @api.onchange('is_dealership_vehicle')
     def _onchange_is_dealership_vehicle(self):
@@ -122,8 +125,8 @@ class ProductTemplate(models.Model):
     @api.onchange('vehicle_make_id')
     def _onchange_vehicle_make_id(self):
         if self.vehicle_make_id:
-            return {'domain': {'vehicle_model_id': [('brand_id', '=', self.vehicle_make_id.id)]}}
-        return {'domain': {'vehicle_model_id': []}}
+            return {'domain': {'model_id': [('brand_id', '=', self.vehicle_make_id.id)]}}
+        return {'domain': {'model_id': []}}
 
     @api.onchange('vehicle_model_id')
     def _onchange_vehicle_model_id(self):
@@ -155,13 +158,13 @@ class ProductTemplate(models.Model):
     @api.model
     def create(self, vals):
         if vals.get('is_vehicle'):
-            vals['detailed_type'] = 'product'  # Make it storable
+            vals['detailed_type'] = 'product'  # Make it storable (Odoo 17+/18)
             vals['tracking'] = 'serial'  # Enable serial tracking
             # Check for existing template with same make/model/year
             domain = [
                 ('is_vehicle', '=', True),
-                ('vehicle_make_id', '=', vals.get('vehicle_make_id')),
-                ('vehicle_model_id', '=', vals.get('vehicle_model_id')),
+                ('make_id', '=', vals.get('make_id')),
+                ('model_id', '=', vals.get('model_id')),
                 ('year', '=', vals.get('year'))
             ]
             existing_template = self.env['product.template'].search(domain, limit=1)
@@ -244,8 +247,8 @@ class ProductTemplate(models.Model):
                 # Create Dealership Vehicle if not exists
                 dealership_vals = {
                     'name': product.name,
-                    'vehicle_make_id': product.vehicle_make_id.id,
-                    'vehicle_model_id': product.vehicle_model_id.id,
+                    'make_id': product.vehicle_make_id.id,
+                    'model_id': product.vehicle_model_id.id,
                     'product_id': product.id,
                     'fleet_vehicle_id': fleet_vehicle.id,
                     'business_type': product.dealership_business_type or 'owner',
@@ -288,7 +291,7 @@ class ProductTemplate(models.Model):
         """Create corresponding fleet vehicle record"""
         if not self.fleet_vehicle_id:
             fleet_vals = {
-                'vehicle_model_id': self.model_id.id,
+                'model_id': self.model_id.id,
                 'license_plate': self.vin_number or '',
                 'vin_sn': self.vin_number,
                 'color': self.color,

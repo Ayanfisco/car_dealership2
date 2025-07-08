@@ -15,7 +15,8 @@
                 <!--                <button name="action_return_vehicle" type="object" string="Return to Consignor"-->
                 <!--                        class="btn-warning" invisible="business_type != 'consigned' or state != 'available'"/>-->
                 <button name="create_fleet_vehicle" type="object" string="Create Fleet Record"
-                        class="btn-success" invisible="(fleet_vehicle_id) and (not is_vehicle)"/>
+                        class="btn-success"
+                        options="{'invisible': ['|', ('is_vehicle', '=', False), ('fleet_vehicle_id', '!=', False)]}"/>
                 <field name="state" widget="statusbar" statusbar_visible="available,reserved,sold"
                        invisible="not is_vehicle"/>
             </header>
@@ -34,7 +35,7 @@
                         <field name="model_id" domain="[('brand_id', '=', make_id)]"/>
                         <field name="year"/>
                         <field name="currency_id" invisible="1"/>
-<!--                        <field name="color"/>-->
+                        <!--                        <field name="color"/>-->
                         <field name="mileage" invisible="condition not in ['foreign_used', 'local_used']"/>
                     </group>
                 </group>

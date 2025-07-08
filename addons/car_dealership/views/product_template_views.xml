@@ -15,7 +15,7 @@
                 <!--                <button name="action_return_vehicle" type="object" string="Return to Consignor"-->
                 <!--                        class="btn-warning" invisible="business_type != 'consigned' or state != 'available'"/>-->
                 <button name="create_fleet_vehicle" type="object" string="Create Fleet Record"
-                        class="btn-success" invisible="fleet_vehicle_id"/>
+                        class="btn-success" invisible="fleet_vehicle_id and not is_vehicle"/>
                 <field name="state" widget="statusbar" statusbar_visible="available,reserved,sold"
                        invisible="not is_vehicle"/>
             </header>

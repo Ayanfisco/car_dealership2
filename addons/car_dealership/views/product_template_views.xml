@@ -6,16 +6,16 @@
         <field name="inherit_id" ref="product.product_template_only_form_view"/>
         <field name="arch" type="xml">
             <header>
-                <button name="action_reserve" type="object" string="Reserve"
-                        class="btn-primary" invisible="state != 'available'"/>
-                <button name="action_make_available" type="object" string="Make Available"
-                        class="btn-secondary" invisible="state != 'reserved'"/>
-                <button name="action_mark_sold" type="object" string="Mark as Sold"
-                        class="btn-success" invisible="state not in ['available', 'reserved']"/>
-                <button name="action_return_vehicle" type="object" string="Return to Consignor"
-                        class="btn-warning" invisible="business_type != 'consigned' or state != 'available'"/>
+<!--                <button name="action_reserve" type="object" string="Reserve"-->
+<!--                        class="btn-primary" invisible="state != 'available'"/>-->
+<!--                <button name="action_make_available" type="object" string="Make Available"-->
+<!--                        class="btn-secondary" invisible="state != 'reserved'"/>-->
+<!--                <button name="action_mark_sold" type="object" string="Mark as Sold"-->
+<!--                        class="btn-success" invisible="state not in ['available', 'reserved']"/>-->
+<!--                <button name="action_return_vehicle" type="object" string="Return to Consignor"-->
+<!--                        class="btn-warning" invisible="business_type != 'consigned' or state != 'available'"/>-->
                 <button name="create_fleet_vehicle" type="object" string="Create Fleet Record"
-                        class="btn-secondary" invisible="fleet_vehicle_id"/>
+                        class="btn-success" invisible="fleet_vehicle_id"/>
                 <field name="state" widget="statusbar" statusbar_visible="available,reserved,sold"/>
             </header>
             <xpath expr="//label[@for='purchase_ok']" position="after">
@@ -26,8 +26,8 @@
                 <page string="Vehicle" invisible="not is_vehicle">
                     <group>
                         <field name="business_type"/>
-                        <field name="make_id" required="1"/>
-                        <field name="model_id" domain="[('brand_id', '=', make_id)]"/>
+                        <field name="make_id" required="is_vehicle"/>
+                        <field name="model_id" domain="[('brand_id', '=', make_id)]" required="is_vehicle"/>
                         <field name="commission_type"/>
                         <field name="commission_value"/>
                         <field name="vendor_id"/>
@@ -45,9 +45,6 @@
                     </div>
                 </button>
             </div>
-            <!-- Remove the old Vehicle page if it exists elsewhere -->
-            <!-- <xpath expr="//notebook/page[@string='Vehicle']" position="replace">
-            </xpath> -->
         </field>
     </record>
 </odoo>

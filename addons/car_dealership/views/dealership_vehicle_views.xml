@@ -156,7 +156,7 @@
     <record id="action_dealership_vehicle" model="ir.actions.act_window">
         <field name="name">Dealership Vehicles</field>
         <field name="res_model">product.template</field>
-        <field name="view_mode">kanban,form</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="domain">[('is_vehicle', '=', True)]</field>
         <field name="context">{'default_is_vehicle': 1}</field>
         <field name="help" type="html">
@@ -174,7 +174,7 @@
         <field name="name">Available Vehicles</field>
         <field name="res_model">dealership.vehicle</field>
         <field name="view_mode">kanban,list,form</field>
-        <field name="domain">[('state', '=', 'available')]</field>
+<!--        <field name="domain">[('state', '=', 'available')]</field>-->
         <field name="context">{'search_default_available': 1}</field>
     </record>
 

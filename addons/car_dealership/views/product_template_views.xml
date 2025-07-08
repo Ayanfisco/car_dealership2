@@ -3,36 +3,63 @@
     <record id="view_product_template_form_inherit_dealership" model="ir.ui.view">
         <field name="name">product.template.form.inherit.dealership</field>
         <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
             <header>
-<!--                <button name="action_reserve" type="object" string="Reserve"-->
-<!--                        class="btn-primary" invisible="state != 'available'"/>-->
-<!--                <button name="action_make_available" type="object" string="Make Available"-->
-<!--                        class="btn-secondary" invisible="state != 'reserved'"/>-->
-<!--                <button name="action_mark_sold" type="object" string="Mark as Sold"-->
-<!--                        class="btn-success" invisible="state not in ['available', 'reserved']"/>-->
-<!--                <button name="action_return_vehicle" type="object" string="Return to Consignor"-->
-<!--                        class="btn-warning" invisible="business_type != 'consigned' or state != 'available'"/>-->
+                <!--                <button name="action_reserve" type="object" string="Reserve"-->
+                <!--                        class="btn-primary" invisible="state != 'available'"/>-->
+                <!--                <button name="action_make_available" type="object" string="Make Available"-->
+                <!--                        class="btn-secondary" invisible="state != 'reserved'"/>-->
+                <!--                <button name="action_mark_sold" type="object" string="Mark as Sold"-->
+                <!--                        class="btn-success" invisible="state not in ['available', 'reserved']"/>-->
+                <!--                <button name="action_return_vehicle" type="object" string="Return to Consignor"-->
+                <!--                        class="btn-warning" invisible="business_type != 'consigned' or state != 'available'"/>-->
                 <button name="create_fleet_vehicle" type="object" string="Create Fleet Record"
                         class="btn-success" invisible="fleet_vehicle_id"/>
-                <field name="state" widget="statusbar" statusbar_visible="available,reserved,sold"/>
+                <field name="state" widget="statusbar" statusbar_visible="available,reserved,sold"
+                       invisible="not is_vehicle"/>
             </header>
             <xpath expr="//label[@for='purchase_ok']" position="after">
                 <field name="is_vehicle"/>
                 <label for="is_vehicle"/>
             </xpath>
+            <xpath expr="//div[@name='options']" position="inside">
+                <group name="vehicle_Information" invisible="not is_vehicle">
+                    <group name="vehicle_info_1">
+                        <field name="vin_number"/>
+                        <field name="business_type" widget="radio" options="{'horizontal': true}"/>
+                        <field name="make_id" required="1"/>
+                    </group>
+                    <group name="vehicle_info_2">
+                        <field name="model_id" domain="[('brand_id', '=', make_id)]"/>
+                        <field name="year"/>
+                        <field name="currency_id" invisible="1"/>
+<!--                        <field name="color"/>-->
+                        <field name="mileage" invisible="condition not in ['foreign_used', 'local_used']"/>
+                    </group>
+                </group>
+            </xpath>
+            <!--            <xpath expr="//div[@name='options']" position="after">-->
+            <!--                -->
+            <!--            </xpath>-->
             <xpath expr="//notebook/page[1]" position="before">
                 <page string="Vehicle" invisible="not is_vehicle">
                     <group>
-                        <field name="business_type"/>
-                        <field name="make_id" required="is_vehicle"/>
-                        <field name="model_id" domain="[('brand_id', '=', make_id)]" required="is_vehicle"/>
-                        <field name="commission_type"/>
-                        <field name="commission_value"/>
-                        <field name="vendor_id"/>
-                        <field name="year"/>
-                        <field name="mileage"/>
+                        <group name="specs" invisible="not is_vehicle">
+                            <field name="fuel_type"/>
+                            <field name="transmission"/>
+                            <field name="condition"/>
+                            <field name="engine_size"/>
+                            <field name="fleet_category_id" widget="selection"/>
+
+                        </group>
+                        <group name="commission" options="{'invisible': [('business_type', '=', 'owner')]}">
+                            <field name="vendor_id" options="{'required': [('business_type', '!=', 'owner')]}"/>
+                            <field name="commission_type" options="{'required': [('business_type', '!=', 'owner')]}"/>
+                            <field name="commission_value" options="{'required': [('business_type', '!=', 'owner')]}"/>
+                            <field name="commission_amount" widget="monetary" readonly="1"/>
+                            <field name="net_payable" widget="monetary" readonly="1"/>
+                        </group>
                     </group>
                 </page>
             </xpath>

@@ -16,11 +16,12 @@ class ProductTemplate(models.Model):
     # Business Type
     business_type = fields.Selection([
         ('owner', 'Owner Product'),
-        ('dealer_network', 'Dealer Network Product'),
-        ('consigned', 'Consigned Product')
+        # ('dealer_network', 'Dealer Network Product'),
+        # ('consigned', 'Consigned Product')
     ], string='Business Type', required=True, default='owner', tracking=True)
 
     # Vehicle Details
+    is_storable = fields.Boolean('Is Storable', default=True, tracking=True)
     make_id = fields.Many2one('fleet.vehicle.model.brand', string='Make', required=True)
     model_id = fields.Many2one('fleet.vehicle.model', string='Model', required=True)
     year = fields.Integer('Year', tracking=True)
@@ -177,58 +178,8 @@ class ProductTemplate(models.Model):
                 ('year', '=', vals.get('year'))
             ]
             existing_template = self.env['product.template'].search(domain, limit=1)
-            color = vals.get('color')
             if existing_template:
-                # Check for existing variant with same color
-                color_attribute = self.env['product.attribute'].search([('name', '=', 'Color')], limit=1)
-                if not color_attribute:
-                    color_attribute = self.env['product.attribute'].create({'name': 'Color'})
-                color_value = self.env['product.attribute.value'].search([
-                    ('name', '=', color), ('attribute_id', '=', color_attribute.id)
-                ], limit=1)
-                if not color_value:
-                    color_value = self.env['product.attribute.value'].create({
-                        'name': color,
-                        'attribute_id': color_attribute.id
-                    })
-                # Add color attribute to template if not present
-                if color_attribute not in existing_template.attribute_line_ids.mapped('attribute_id'):
-                    self.env['product.template.attribute.line'].create({
-                        'product_tmpl_id': existing_template.id,
-                        'attribute_id': color_attribute.id,
-                        'value_ids': [(6, 0, [color_value.id])]
-                    })
-                # Find or create variant
-                variant = existing_template.product_variant_ids.filtered(
-                    lambda v: v.product_template_attribute_value_ids.filtered(
-                        lambda pav: pav.attribute_id == color_attribute and pav.value_id == color_value
-                    )
-                )
-                if variant:
-                    # Ensure variant is storable
-                    variant.type = 'consu'
-                    # Increase inventory for existing variant
-                    stock_location = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
-                    if stock_location:
-                        self.env['stock.quant'].create({
-                            'product_id': variant.id,
-                            'location_id': stock_location.id,
-                            'quantity': 1.0,
-                            'inventory_quantity': 1.0,
-                        })
-                    return existing_template
-                else:
-                    # Create new variant by updating attribute line
-                    line = existing_template.attribute_line_ids.filtered(lambda l: l.attribute_id == color_attribute)
-                    if line:
-                        line.value_ids = [(4, color_value.id)]
-                    else:
-                        self.env['product.template.attribute.line'].create({
-                            'product_tmpl_id': existing_template.id,
-                            'attribute_id': color_attribute.id,
-                            'value_ids': [(6, 0, [color_value.id])]
-                        })
-                    return existing_template
+                return existing_template
         product = super().create(vals)
         # Ensure all variants are storable if is_vehicle
         if product.is_vehicle:

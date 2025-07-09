@@ -44,10 +44,10 @@ class ProductTemplate(models.Model):
         ('local_used', 'Local Used')
     ])
     transmission = fields.Selection([
-        ('amt', 'AMT'),
+        # ('amt', 'AMT'),
         ('manual', 'Manual'),
         ('automatic', 'Automatic'),
-        ('cvt', 'CVT')
+        # ('cvt', 'CVT')
     ], string='Transmission', tracking=True)
 
     # Financial Information

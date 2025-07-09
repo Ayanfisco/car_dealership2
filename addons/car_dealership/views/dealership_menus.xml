@@ -30,6 +30,11 @@
               action="action_dealership_vehicle_sold"
               sequence="30"/>
 
+    <menuitem id="menu_dealership_products"
+              name="Products"
+              parent="menu_dealership_root"
+              sequence="20"/>
+
     <!-- Purchases Menu -->
     <menuitem id="menu_dealership_purchases"
               name="Purchases"
@@ -42,11 +47,11 @@
               action="purchase.purchase_form_action"
               sequence="10"/>
 
-    <menuitem id="menu_dealership_products"
-              name="Products"
+    <menuitem id="menu_dealership_purchase_orders"
+              name="RFQ"
               parent="menu_dealership_purchases"
-              action="product.product_template_action"
-              sequence="20"/>
+              action="purchase.purchase_rfq"
+              sequence="10"/>
 
     <!-- Sales Menu -->
     <menuitem id="menu_dealership_sales"
@@ -54,23 +59,30 @@
               parent="menu_dealership_root"
               sequence="30"/>
 
+    <menuitem id="menu_dealership_customers"
+              name="Quotations"
+              parent="menu_dealership_sales"
+              action="sale.action_quotations_with_onboarding"
+              sequence="10"/>
+
     <menuitem id="menu_dealership_sale_orders"
               name="Sales Orders"
               parent="menu_dealership_sales"
               action="sale.action_orders"
-              sequence="10"/>
-
-    <menuitem id="menu_dealership_customers"
-              name="Customers"
-              parent="menu_dealership_sales"
-              action="base.action_partner_customer_form"
               sequence="20"/>
+
 
     <!-- Reports Menu -->
     <menuitem id="menu_dealership_reports"
-              name="Reports"
+              name="Reporting"
               parent="menu_dealership_root"
               sequence="40"/>
+
+    <menuitem id="menu_dealership_reports_sales"
+              name="Sales Reports"
+              parent="menu_dealership_reports"
+              action="sale.action_order_report_all"
+              sequence="10"/>
 
     <!-- Configuration Menu -->
     <menuitem id="menu_dealership_configuration"

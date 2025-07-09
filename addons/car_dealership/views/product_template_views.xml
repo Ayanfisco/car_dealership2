@@ -34,7 +34,7 @@
                         <field name="model_id" domain="[('brand_id', '=', make_id)]"/>
                         <field name="year"/>
                         <field name="currency_id" invisible="1"/>
-<!--                        <field name="color"/>-->
+                        <!--                        <field name="color"/>-->
                         <field name="mileage" invisible="condition not in ['foreign_used', 'local_used']"/>
                     </group>
                 </group>
@@ -66,7 +66,8 @@
             <div class="oe_button_box" name="button_box">
                 <button name="%(fleet.fleet_vehicle_action)d" type="action"
                         class="oe_stat_button" icon="fa-car" invisible="not fleet_vehicle_id"
-                        context="{'default_id': fleet_vehicle_id}">
+                        context="{'form_view_ref': 'fleet.fleet_vehicle_view_form'}"
+                        res_id="fleet_vehicle_id">
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_text">Fleet Record</span>
                     </div>

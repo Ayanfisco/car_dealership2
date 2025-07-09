@@ -2,12 +2,13 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 import logging
 
+
 class ProductTemplate(models.Model):
     """Extended product template for dealership vehicles"""
     _inherit = 'product.template'
 
     # Dealership specific fields
-    # is_dealership_vehicle = fields.Boolean('Is Dealership Vehicle', default=False)
+    is_dealership_vehicle = fields.Boolean('Is Dealership Vehicle', default=False)
     name = fields.Char('Vehicle Name', required=True, tracking=True)
     vin_number = fields.Char('VIN Number', tracking=True, help="Vehicle Identification Number")
     fleet_vehicle_id = fields.Many2one('fleet.vehicle', string='Fleet Vehicle', ondelete='cascade')
@@ -99,10 +100,8 @@ class ProductTemplate(models.Model):
         ('unique_model_year', 'UNIQUE(model_id, year)',
          'A vehicle with this model and year already exists in the system!')
     ]
-    is_vehicle = fields.Boolean('Is Vehicle', default=False, help="Check if this product is a vehicle. If checked, a record will be created in both Fleet and Car Dealership modules.")
-
-    # New field for vehicle year
-    year = fields.Integer('Year', help="Model year of the vehicle")
+    is_vehicle = fields.Boolean('Is Vehicle', default=False,
+                                help="Check if this product is a vehicle. If checked, a record will be created in both Fleet and Car Dealership modules.")
 
     @api.onchange('is_dealership_vehicle')
     def _onchange_is_dealership_vehicle(self):
@@ -112,9 +111,9 @@ class ProductTemplate(models.Model):
             self.tracking = 'serial'  # Track by unique serial number (VIN)
             self.categ_id = self._get_default_dealership_category()
         else:
-            self.dealership_business_type = False
-            self.vehicle_make_id = False
-            self.vehicle_model_id = False
+            self.business_type = False  # Fixed: Use 'business_type' instead of 'dealership_business_type'
+            self.make_id = False  # Fixed: Use 'make_id' instead of 'vehicle_make_id'
+            self.model_id = False  # Fixed: Use 'model_id' instead of 'vehicle_model_id'
 
     @api.onchange('model_id', 'year', 'color')
     def _onchange_vehicle_details(self):
@@ -125,24 +124,25 @@ class ProductTemplate(models.Model):
             if self.color:
                 name_parts.append(self.color)
             self.name = ' '.join(name_parts)
-    @api.onchange('dealership_business_type')
-    def _onchange_dealership_business_type(self):
-        if self.dealership_business_type:
-            category = self._get_dealership_category_by_type(self.dealership_business_type)
+
+    @api.onchange('business_type')  # Fixed: Use 'business_type' instead of 'dealership_business_type'
+    def _onchange_business_type(self):
+        if self.business_type:
+            category = self._get_dealership_category_by_type(self.business_type)
             if category:
                 self.categ_id = category.id
 
-    @api.onchange('vehicle_make_id')
-    def _onchange_vehicle_make_id(self):
-        if self.vehicle_make_id:
-            return {'domain': {'model_id': [('brand_id', '=', self.vehicle_make_id.id)]}}
+    @api.onchange('make_id')  # Fixed: Use 'make_id' instead of 'vehicle_make_id'
+    def _onchange_make_id(self):
+        if self.make_id:
+            return {'domain': {'model_id': [('brand_id', '=', self.make_id.id)]}}
         return {'domain': {'model_id': []}}
 
-    @api.onchange('vehicle_model_id')
-    def _onchange_vehicle_model_id(self):
-        if self.vehicle_model_id and self.vehicle_make_id:
+    @api.onchange('model_id')  # Fixed: Use 'model_id' instead of 'vehicle_model_id'
+    def _onchange_model_id(self):
+        if self.model_id and self.make_id:
             # Auto-generate product name
-            self.name = f"{self.vehicle_make_id.name} {self.vehicle_model_id.name}"
+            self.name = f"{self.make_id.name} {self.model_id.name}"
 
     def _get_default_dealership_category(self):
         """Get default product category for dealership vehicles"""
@@ -199,19 +199,20 @@ class ProductTemplate(models.Model):
                 product.tracking = 'serial'
                 # Create Fleet Vehicle if not exists
                 fleet_vals = {
-                    'model_id': product.vehicle_model_id.id,
-                    'brand_id': product.vehicle_make_id.id,
+                    'model_id': product.model_id.id,  # Fixed: Use 'model_id' instead of 'vehicle_model_id'
+                    'brand_id': product.make_id.id,  # Fixed: Use 'make_id' instead of 'vehicle_make_id'
                     'license_plate': product.name,
                 }
                 fleet_vehicle = self.env['fleet.vehicle'].create(fleet_vals)
                 # Create Dealership Vehicle if not exists
                 dealership_vals = {
                     'name': product.name,
-                    'make_id': product.vehicle_make_id.id,
-                    'model_id': product.vehicle_model_id.id,
+                    'make_id': product.make_id.id,  # Fixed: Use 'make_id' instead of 'vehicle_make_id'
+                    'model_id': product.model_id.id,  # Fixed: Use 'model_id' instead of 'vehicle_model_id'
                     'product_id': product.id,
                     'fleet_vehicle_id': fleet_vehicle.id,
-                    'business_type': product.dealership_business_type or 'owner',
+                    'business_type': product.business_type or 'owner',
+                    # Fixed: Use 'business_type' instead of 'dealership_business_type'
                 }
                 self.env['dealership.vehicle'].create(dealership_vals)
                 # Create incoming stock move for inventory
@@ -267,3 +268,32 @@ class ProductTemplate(models.Model):
             fleet_vehicle = self.env['fleet.vehicle'].create(fleet_vals)
             self.fleet_vehicle_id = fleet_vehicle.id
             self.message_post(body=_('Fleet vehicle record created: %s') % fleet_vehicle.name)
+
+    # Add missing computed methods
+    @api.depends('purchase_price', 'commission_value', 'commission_type')
+    def _compute_commission_amount(self):
+        for record in self:
+            if record.commission_type == 'percentage':
+                record.commission_amount = (record.purchase_price * record.commission_value) / 100
+            elif record.commission_type == 'fixed':
+                record.commission_amount = record.commission_value
+            else:
+                record.commission_amount = 0.0
+
+    @api.depends('purchase_price', 'commission_amount')
+    def _compute_net_payable(self):
+        for record in self:
+            record.net_payable = record.purchase_price - record.commission_amount
+
+    @api.depends('selling_price', 'purchase_price')
+    def _compute_profit_amount(self):
+        for record in self:
+            record.profit_amount = record.selling_price - record.purchase_price
+
+    @api.depends('profit_amount', 'purchase_price')
+    def _compute_profit_percentage(self):
+        for record in self:
+            if record.purchase_price:
+                record.profit_percentage = (record.profit_amount / record.purchase_price) * 100
+            else:
+                record.profit_percentage = 0.0

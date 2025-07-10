@@ -33,6 +33,7 @@
     <menuitem id="menu_dealership_products"
               name="Products"
               parent="menu_dealership_root"
+              action="action_product_vehicle"
               sequence="20"/>
 
     <!-- Purchases Menu -->
@@ -44,14 +45,14 @@
     <menuitem id="menu_dealership_purchase_orders"
               name="Purchase Orders"
               parent="menu_dealership_purchases"
-              action="purchase.purchase_form_action"
+              action="action_vehicle_purchase_orders"
               sequence="10"/>
 
-    <menuitem id="menu_dealership_purchase_orders"
+    <menuitem id="menu_dealership_purchase_rfq"
               name="RFQ"
               parent="menu_dealership_purchases"
-              action="purchase.purchase_rfq"
-              sequence="10"/>
+              action="action_vehicle_purchase_rfq"
+              sequence="20"/>
 
     <!-- Sales Menu -->
     <menuitem id="menu_dealership_sales"
@@ -60,15 +61,15 @@
               sequence="30"/>
 
     <menuitem id="menu_dealership_customers"
-              name="Quotations"
+              name="Vehicle Quotations"
               parent="menu_dealership_sales"
-              action="sale.action_quotations_with_onboarding"
+              action="action_vehicle_quotations"
               sequence="10"/>
 
     <menuitem id="menu_dealership_sale_orders"
-              name="Sales Orders"
+              name=" Vehicle Sales Orders"
               parent="menu_dealership_sales"
-              action="sale.action_orders"
+              action="action_vehicle_sales_orders"
               sequence="20"/>
 
 
@@ -81,7 +82,7 @@
     <menuitem id="menu_dealership_reports_sales"
               name="Sales Reports"
               parent="menu_dealership_reports"
-              action="sale.action_order_report_all"
+              action="action_vehicle_sales_report"
               sequence="10"/>
 
     <!-- Configuration Menu -->

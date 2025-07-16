@@ -8,6 +8,8 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     # Dealership specific fields
+    quant_id = fields.Many2one('stock.quant', string='Stock Quant')
+    available_quantity = fields.Float(related='quant_id.qty_available', string='Available Qty', store=True)
     is_dealership_vehicle = fields.Boolean('Is Dealership Vehicle', default=False)
     name = fields.Char('Vehicle Name', required=True, tracking=True)
     vin_number = fields.Char('VIN Number', tracking=True, help="Vehicle Identification Number")
@@ -138,6 +140,12 @@ class ProductTemplate(models.Model):
             return {'domain': {'model_id': [('brand_id', '=', self.make_id.id)]}}
         return {'domain': {'model_id': []}}
 
+    @api.onchange('available_quantity')
+    def _onchange_available_quantity(self):
+        if self.available_quantity == 0.00:
+            self.state = 'sold'
+        elif self.available_quantity >= 1:
+            self.state = 'available'
     @api.onchange('model_id')  # Fixed: Use 'model_id' instead of 'vehicle_model_id'
     def _onchange_model_id(self):
         if self.model_id and self.make_id:
@@ -231,15 +239,15 @@ class ProductTemplate(models.Model):
         self.write({'state': 'reserved'})
         self.message_post(body=_('Vehicle has been reserved.'))
 
-    def action_make_available(self):
-        """Make the vehicle available again"""
-        self.write({'state': 'available'})
-        self.message_post(body=_('Vehicle is now available for sale.'))
+    # def action_make_available(self):
+    #     """Make the vehicle available again"""
+    #     self.write({'state': 'available'})
+    #     self.message_post(body=_('Vehicle is now available for sale.'))
 
-    def action_mark_sold(self):
-        """Mark the vehicle as sold"""
-        self.write({'state': 'sold'})
-        self.message_post(body=_('Vehicle has been sold.'))
+    # def action_mark_sold(self):
+    #     """Mark the vehicle as sold"""
+    #     self.write({'state': 'sold'})
+    #     self.message_post(body=_('Vehicle has been sold.'))
 
     def action_return_vehicle(self):
         """Return consigned vehicle to owner"""

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-     Remove/Archive Dealership Vehicle Form View (optional, for product-centric workflow)
-        <record id="view_dealership_vehicle_form" model="ir.ui.view">
+    Remove/Archive Dealership Vehicle Form View (optional, for product-centric workflow)
+    <record id="view_dealership_vehicle_form" model="ir.ui.view">
         <field name="name">dealership.vehicle.form</field>
         <field name="model">dealership.vehicle</field>
         <field name="arch" type="xml">
@@ -73,8 +73,10 @@
 
                                 <group name="commission" options="{'invisible': [('business_type', '=', 'owner')]}">
                                     <field name="vendor_id" options="{'required': [('business_type', '!=', 'owner')]}"/>
-                                    <field name="commission_type" options="{'required': [('business_type', '!=', 'owner')]}"/>
-                                    <field name="commission_value" options="{'required': [('business_type', '!=', 'owner')]}"/>
+                                    <field name="commission_type"
+                                           options="{'required': [('business_type', '!=', 'owner')]}"/>
+                                    <field name="commission_value"
+                                           options="{'required': [('business_type', '!=', 'owner')]}"/>
                                     <field name="commission_amount" widget="monetary" readonly="1"/>
                                     <field name="net_payable" widget="monetary" readonly="1"/>
                                 </group>
@@ -100,11 +102,11 @@
                     </notebook>
                 </sheet>
                 <!-- Updated chatter structure for Odoo 18 -->
-               <chatter />
+                <chatter/>
             </form>
         </field>
     </record>
-     Optionally, update menu or actions to point only to product.template vehicle views
+    Optionally, update menu or actions to point only to product.template vehicle views
 
     <!-- Dealership Vehicle Tree View -->
     <record id="view_dealership_vehicle_tree" model="ir.ui.view">
@@ -337,17 +339,23 @@
 
     <record id="action_dealership_vehicle_available" model="ir.actions.act_window">
         <field name="name">Available Vehicles</field>
-        <field name="res_model">dealership.vehicle</field>
+        <field name="res_model">product.template</field>
         <field name="view_mode">kanban,list,form</field>
-        <field name="domain">[('state', '=', 'available')]</field>
+        <field name="domain">[('state', '=', 'available'), ('is_vehicle', '=', True)]</field>
         <field name="context">{'search_default_available': 1}</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_product_template_kanban_custom')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_product_template_form_inherit_dealership')})]"/>
     </record>
 
     <record id="action_dealership_vehicle_sold" model="ir.actions.act_window">
         <field name="name">Sold Vehicles</field>
-        <field name="res_model">dealership.vehicle</field>
+        <field name="res_model">product.template</field>
         <field name="view_mode">list,form</field>
-        <field name="domain">[('state', '=', 'sold')]</field>
+        <field name="domain">[('state', '=', 'sold'), ('is_vehicle', '=', True)]</field>
         <field name="context">{'search_default_sold': 1}</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_product_template_kanban_custom')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_product_template_form_inherit_dealership')})]"/>
     </record>
 </odoo>

@@ -10,8 +10,8 @@ class PurchaseOrderLine(models.Model):
         if product.is_vehicle:
             # Find or create dealership.vehicle record
             dealership_vehicle = line.env['dealership.vehicle'].search([
-                ('make_id', '=', product.vehicle_make_id.id),
-                ('model_id', '=', product.vehicle_model_id.id),
+                ('make_id', '=', product.make_id.id),
+                ('model_id', '=', product.model_id.id),
                 ('year', '=', getattr(product, 'year', False)),
                 ('color', '=', getattr(line.product_id, 'color', False)),
             ], limit=1)
@@ -21,8 +21,8 @@ class PurchaseOrderLine(models.Model):
             else:
                 line.env['dealership.vehicle'].create({
                     'name': product.name,
-                    'make_id': product.vehicle_make_id.id,
-                    'model_id': product.vehicle_model_id.id,
+                    'make_id': product.make_id.id,
+                    'model_id': product.model_id.id,
                     'year': getattr(product, 'year', False),
                     'color': getattr(line.product_id, 'color', False),
                     'quantity': qty,

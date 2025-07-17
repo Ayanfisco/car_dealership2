@@ -8,8 +8,8 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     # Dealership specific fields
-    quant_id = fields.Many2one('stock.quant', string='Stock Quant')
-    available_quantity = fields.Float(related='quant_id.available_quantity', string='Available Qty', store=True)
+    quant_id = fields.Many2one('product.product', string='Stock Quant')
+    available_quantity = fields.Float(related='quant_id.qty_available', string='Available Qty', store=True)
     is_dealership_vehicle = fields.Boolean('Is Dealership Vehicle', default=False)
     name = fields.Char('Vehicle Name', required=True, tracking=True)
     vin_number = fields.Char('VIN Number', tracking=True, help="Vehicle Identification Number")

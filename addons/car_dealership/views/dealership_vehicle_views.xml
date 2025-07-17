@@ -344,7 +344,8 @@
         <field name="domain">[('state', '=', 'available'), ('is_vehicle', '=', True)]</field>
         <field name="context">{'search_default_available': 1}</field>
         <field name="view_ids" eval="[(5, 0, 0),
-                        (0, 0, {'view_mode': 'form', 'view_id': ref('view_product_template_form_inherit_dealership')})]"/>
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_product_template_kanban_custom')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_product_template_form_inherit_dealership')})]"/>
     </record>
 
     <record id="action_dealership_vehicle_sold" model="ir.actions.act_window">
@@ -354,6 +355,7 @@
         <field name="domain">[('state', '=', 'sold'), ('is_vehicle', '=', True)]</field>
         <field name="context">{'search_default_sold': 1}</field>
         <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_product_template_kanban_custom')}),
                 (0, 0, {'view_mode': 'form', 'view_id': ref('view_product_template_form_inherit_dealership')})]"/>
     </record>
 </odoo>

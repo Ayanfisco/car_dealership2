@@ -1,655 +1,675 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-                                        <div class="col-6">
-                                            <div class="o_kanban_detail_item">
-                                                <span class="o_label">Make:</span>
-                                                <field name="make_id" class="ms-1"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="o_kanban_detail_item">
-                                                <span class="o_label">Model:</span>
-                                                <field name="model_id" class="ms-1"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row g-0 mt-1">
-                                        <div class="col-6">
-                                            <div class="o_kanban_detail_item">
-                                                <span class="o_label">Year:</span>
-                                                <field name="year" class="ms-1"/>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="o_kanban_detail_item">
-                                                <span class="o_label">Color:</span>
-                                                <field name="color" class="ms-1"/>
-                                            </div>
-                                        </div>
-                                    </div>
+    <!-- Fleet Vehicle Kanban View -->
+    <record id="view_dealership_vehicle_dashboard_kanban" model="ir.ui.view">
+        <field name="name">dealership.vehicle.kanban</field>
+        <field name="model">dealership.vehicle</field>
+        <field name="arch" type="xml">
+            <kanban class="o_dealership_dashboard" create="1" quick_create="0">
+                <field name="make_id"/>
+                <field name="model_id"/>
+                <field name="year"/>
+                <field name="color"/>
+                <field name="state"/>
+                
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="o_kanban_record o_kanban_card_{{ record.state.raw_value }}">
+                            <div class="o_kanban_content">
+                                <div class="o_kanban_record_title">
+                                    <field name="license_plate"/>
                                 </div>
+                                <div class="o_kanban_details">
+                                    <div class="row g-0">
+        <div class="col-6">
+            <div class="o_kanban_detail_item">
+                <span class="o_label">Make:</span>
+                <field name="make_id" class="ms-1"/>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="o_kanban_detail_item">
+                <span class="o_label">Model:</span>
+                <field name="model_id" class="ms-1"/>
+            </div>
+        </div>
+    </div>
+    <div class="row g-0 mt-1">
+        <div class="col-6">
+            <div class="o_kanban_detail_item">
+                <span class="o_label">Year:</span>
+                <field name="year" class="ms-1"/>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="o_kanban_detail_item">
+                <span class="o_label">Color:</span>
+                <field name="color" class="ms-1"/>
+            </div>
+        </div>
+    </div>
 
-                                <!-- Status Badge -->
-                                <div class="o_kanban_footer mt16">
-                                    <div class="o_kanban_tags_section">
-                                        <field name="state" widget="label_selection" 
-                                               options="{'classes': {
+        <!-- Status Badge -->
+<div class="o_kanban_footer mt16">
+<div class="o_kanban_tags_section">
+    <field name="state" widget="label_selection"
+           options="{'classes': {
                                                    'available': 'success', 
                                                    'sold': 'warning',
                                                    'reserved': 'info',
                                                    'returned': 'secondary'
                                                }}"/>
-                                    </div>
-                                </div>
+</div>
+</div>
 
-                                <!-- Management Panel -->
-                                <div class="o_kanban_manage_pane dropdown-menu" role="menu">
-                                    <div class="container-fluid">
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <h5 role="menuitem" aria-haspopup="true" class="o_kanban_card_manage_title">
-                                                    <span>Vehicle Actions</span>
-                                                </h5>
-                                                <div role="menuitem">
-                                                    <a type="edit" class="dropdown-item">
-                                                        <i class="fa fa-pencil me-2"/>Edit Vehicle
-                                                    </a>
-                                                </div>
-                                                <div role="menuitem">
-                                                    <a name="action_view_details" class="dropdown-item">
-                                                        <i class="fa fa-eye me-2"/>View Details
-                                                    </a>
-                                                </div>
-                                                <t t-if="record.state.raw_value == 'available'">
-                                                    <div role="menuitem">
-                                                        <a name="action_mark_sold" class="dropdown-item">
-                                                            <i class="fa fa-check me-2"/>Mark as Sold
-                                                        </a>
-                                                    </div>
-                                                </t>
-                                            </div>
-                                            <div class="col-6">
-                                                <h5 role="menuitem" aria-haspopup="true" class="o_kanban_card_manage_title">
-                                                    <span>Reports</span>
-                                                </h5>
-                                                <div role="menuitem">
-                                                    <a name="action_vehicle_report" class="dropdown-item">
-                                                        <i class="fa fa-file-text-o me-2"/>Vehicle Report
-                                                    </a>
-                                                </div>
-                                                <div role="menuitem">
-                                                    <a name="action_inventory_report" class="dropdown-item">
-                                                        <i class="fa fa-bar-chart me-2"/>Inventory Report
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
+        <!-- Management Panel -->
+<div class="o_kanban_manage_pane dropdown-menu" role="menu">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-6">
+            <h5 role="menuitem" aria-haspopup="true" class="o_kanban_card_manage_title">
+                <span>Vehicle Actions</span>
+            </h5>
+            <div role="menuitem">
+                <a type="edit" class="dropdown-item">
+                    <i class="fa fa-pencil me-2"/>Edit Vehicle
+                </a>
+            </div>
+            <div role="menuitem">
+                <a name="action_view_details" class="dropdown-item">
+                    <i class="fa fa-eye me-2"/>View Details
+                </a>
+            </div>
+            <t t-if="record.state.raw_value == 'available'">
+                <div role="menuitem">
+                    <a name="action_mark_sold" class="dropdown-item">
+                        <i class="fa fa-check me-2"/>Mark as Sold
+                    </a>
+                </div>
+            </t>
+        </div>
+        <div class="col-6">
+            <h5 role="menuitem" aria-haspopup="true" class="o_kanban_card_manage_title">
+                <span>Reports</span>
+            </h5>
+            <div role="menuitem">
+                <a name="action_vehicle_report" class="dropdown-item">
+                    <i class="fa fa-file-text-o me-2"/>Vehicle Report
+                </a>
+            </div>
+            <div role="menuitem">
+                <a name="action_inventory_report" class="dropdown-item">
+                    <i class="fa fa-bar-chart me-2"/>Inventory Report
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+        </div>
+        </div>
+        </t>
+        </templates>
+        </kanban>
+        </field>
+        </record>
+
+        <!-- Custom CSS for the dashboard -->
+<template id="dealership_dashboard_assets" name="Dealership Dashboard Assets">
+<xpath expr="." position="inside">
+    <style type="text/css">
+        /* Dashboard Kanban Base Styles */
+        .o_dealership_dashboard .o_kanban_record {
+        margin: 10px;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        overflow: hidden;
+        position: relative;
+        }
+
+        .o_dealership_dashboard .o_kanban_record:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+        }
+
+        .o_dealership_dashboard .o_kanban_content {
+        padding: 24px;
+        position: relative;
+        }
+
+        /* Available Vehicles Card */
+        .o_kanban_card_available {
+        background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 50%, #b2f2d7 100%);
+        border-left: 6px solid #10b981;
+        }
+
+        .o_kanban_card_available::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 60px;
+        height: 60px;
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 0 16px 0 60px;
+        }
+
+        /* Sold Vehicles Card */
+        .o_kanban_card_sold {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
+        border-left: 6px solid #f59e0b;
+        }
+
+        .o_kanban_card_sold::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 60px;
+        height: 60px;
+        background: rgba(245, 158, 11, 0.1);
+        border-radius: 0 16px 0 60px;
+        }
+
+        /* Reserved Vehicles Card */
+        .o_kanban_card_reserved {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%);
+        border-left: 6px solid #3b82f6;
+        }
+
+        .o_kanban_card_reserved::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 60px;
+        height: 60px;
+        background: rgba(59, 130, 246, 0.1);
+        border-radius: 0 16px 0 60px;
+        }
+
+        /* Returned Vehicles Card */
+        .o_kanban_card_returned {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
+        border-left: 6px solid #64748b;
+        }
+
+        .o_kanban_card_returned::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 60px;
+        height: 60px;
+        background: rgba(100, 116, 139, 0.1);
+        border-radius: 0 16px 0 60px;
+        }
+
+        /* Group Headers */
+        .o_dealership_dashboard .o_kanban_group_header {
+        background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+        color: white;
+        font-weight: 700;
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .o_dealership_dashboard .o_kanban_group_title {
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        }
+
+        .o_dealership_dashboard .o_kanban_group_counter {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        }
+
+        /* Record Header */
+        .o_dealership_dashboard .o_kanban_record_title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 4px;
+        }
+
+        .o_dealership_dashboard .o_kanban_record_subtitle {
+        font-size: 0.85rem;
+        color: #6b7280;
+        font-weight: 500;
+        }
+
+        /* Vehicle Details Grid */
+        .o_dealership_dashboard .o_vehicle_details_grid {
+        background: rgba(255,255,255,0.8);
+        border-radius: 12px;
+        padding: 16px;
+        margin: 16px 0;
+        backdrop-filter: blur(10px);
+        }
+
+        .o_dealership_dashboard .o_detail_row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        }
+
+        .o_dealership_dashboard .o_detail_row:last-child {
+        margin-bottom: 0;
+        }
+
+        .o_dealership_dashboard .o_detail_item {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+        }
+
+        .o_dealership_dashboard .o_detail_item:first-child {
+        padding-left: 0;
+        }
+
+        .o_dealership_dashboard .o_detail_item:last-child {
+        padding-right: 0;
+        }
+
+        .o_dealership_dashboard .o_label {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.8rem;
+        margin-right: 6px;
+        display: flex;
+        align-items: center;
+        }
+
+        .o_dealership_dashboard .o_value {
+        color: #1f2937;
+        font-weight: 500;
+        font-size: 0.85rem;
+        }
+
+        /* Quantity Section */
+        .o_dealership_dashboard .o_quantity_section {
+        text-align: center;
+        margin: 20px 0;
+        }
+
+        .o_dealership_dashboard .o_quantity_display {
+        background: rgba(255,255,255,0.9);
+        border-radius: 16px;
+        padding: 20px;
+        display: inline-block;
+        min-width: 120px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .o_dealership_dashboard .o_quantity_number {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 8px;
+        background: linear-gradient(45deg, currentColor, currentColor);
+        -webkit-background-clip: text;
+        background-clip: text;
+        }
+
+        .o_dealership_dashboard .o_quantity_label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #6b7280;
+        }
+
+        /* Footer Tags */
+        .o_dealership_dashboard .o_kanban_record_bottom {
+        display: flex;
+        justify-content: center;
+        margin-top: 16px;
+        }
+
+        .o_dealership_dashboard .o_kanban_tags_section {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        }
+
+        .o_dealership_dashboard .badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 20px;
+        text-transform: capitalize;
+        letter-spacing: 0.5px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+        }
+
+        /* Management Button */
+        .o_dealership_dashboard .o_kanban_manage_toggle_button {
+        color: #6b7280;
+        font-size: 1.2rem;
+        transition: all 0.2s ease;
+        padding: 8px;
+        border-radius: 8px;
+        }
+
+        .o_dealership_dashboard .o_kanban_manage_toggle_button:hover {
+        color: #374151;
+        background: rgba(255,255,255,0.8);
+        }
+
+        /* Management Panel */
+        .o_dealership_dashboard .o_kanban_manage_pane {
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        border: none;
+        padding: 20px;
+        background: white;
+        }
+
+        .o_dealership_dashboard .o_kanban_card_manage_title {
+        color: #1f2937;
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        }
+
+        .o_dealership_dashboard .dropdown-item {
+        font-size: 0.85rem;
+        padding: 10px 16px;
+        border-radius: 8px;
+        margin-bottom: 4px;
+        color: #374151;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+        }
+
+        .o_dealership_dashboard .dropdown-item:hover {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        color: #1f2937;
+        transform: translateX(4px);
+        }
+
+        /* Animation for cards */
+        .o_dealership_dashboard .o_kanban_record {
+        animation: slideInUp 0.5s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+        }
+
+        .o_dealership_dashboard .o_kanban_record:nth-child(1) { animation-delay: 0.1s; }
+        .o_dealership_dashboard .o_kanban_record:nth-child(2) { animation-delay: 0.2s; }
+        .o_dealership_dashboard .o_kanban_record:nth-child(3) { animation-delay: 0.3s; }
+        .o_dealership_dashboard .o_kanban_record:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideInUp {
+        to {
+        opacity: 1;
+        transform: translateY(0);
+        }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+        .o_dealership_dashboard .o_quantity_number {
+        font-size: 2.5rem;
+        }
+
+        .o_dealership_dashboard .o_kanban_content {
+        padding: 16px;
+        }
+
+        .o_dealership_dashboard .o_detail_row {
+        flex-direction: column;
+        gap: 8px;
+        }
+
+        .o_dealership_dashboard .o_detail_item {
+        padding: 0;
+        justify-content: space-between;
+        }
+        }
+
+        @media (max-width: 576px) {
+        .o_dealership_dashboard .o_kanban_record {
+        margin: 8px 4px;
+        }
+
+        .o_dealership_dashboard .o_vehicle_details_grid {
+        padding: 12px;
+        }
+        }
+
+        /* Loading animation for quantity numbers */
+        .o_dealership_dashboard .o_quantity_number {
+        animation: countUp 1s ease-out forwards;
+        }
+
+        @keyframes countUp {
+        from {
+        transform: scale(0.8);
+        opacity: 0;
+        }
+        to {
+        transform: scale(1);
+        opacity: 1;
+        }
+        }
+
+        /* Special hover effects for different states */
+        .o_kanban_card_available:hover {
+        box-shadow: 0 12px 32px rgba(16, 185, 129, 0.2);
+        }
+
+        .o_kanban_card_sold:hover {
+        box-shadow: 0 12px 32px rgba(245, 158, 11, 0.2);
+        }
+
+        .o_kanban_card_reserved:hover {
+        box-shadow: 0 12px 32px rgba(59, 130, 246, 0.2);
+        }
+
+        .o_kanban_card_returned:hover {
+        box-shadow: 0 12px 32px rgba(100, 116, 139, 0.2);
+        }
+    </style>dashboard .o_kanban_details {
+    background: rgba(255,255,255,0.7);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 12px 0;
+    }
+
+    .o_dealership_dashboard .o_kanban_detail_item {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    }
+
+    .o_dealership_dashboard .o_label {
+    font-weight: 600;
+    color: #6c757d;
+    }
+
+    /* Footer Styling */
+    .o_dealership_dashboard .o_kanban_footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    }
+
+    /* Status Badge Customization */
+    .o_dealership_dashboard .badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    text-transform: capitalize;
+    }
+
+    /* Management Button */
+    .o_dealership_dashboard .o_kanban_manage_toggle_button {
+    color: #6c757d;
+    font-size: 1.1rem;
+    transition: color 0.2s ease;
+    }
+
+    .o_dealership_dashboard .o_kanban_manage_toggle_button:hover {
+    color: #495057;
+    }
+
+    /* Management Panel */
+    .o_dealership_dashboard .o_kanban_manage_pane {
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    border: none;
+    }
+
+    .o_dealership_dashboard .o_kanban_card_manage_title {
+    color: #495057;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #dee2e6;
+    }
+
+    .o_dealership_dashboard .dropdown-item {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    }
+
+    .o_dealership_dashboard .dropdown-item:hover {
+    background-color: #f8f9fa;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+    .o_dealership_dashboard .o_primary_value {
+    font-size: 2.5rem;
+    }
+
+    .o_dealership_dashboard .o_kanban_content {
+    padding: 15px;
+    }
+    }
+
+    /* Group Headers */
+    .o_dealership_dashboard .o_kanban_group_header {
+    background: linear-gradient(90deg, #6c757d 0%, #495057 100%);
+    color: white;
+    font-weight: 600;
+    padding: 12px 16px;
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 8px;
+    }
+
+    /* Animation for numbers */
+    .o_dealership_dashboard .o_value {
+    display: inline-block;
+    animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+    from {
+    opacity: 0;
+    transform: translateY(20px);
+    }
+    to {
+    opacity: 1;
+    transform: translateY(0);
+    }
+    }
+</style>
+</xpath>
+        </template>
+
+        <!-- Summary Dashboard View (Alternative approach with aggregated data) -->
+<record id="view_dealership_summary_kanban" model="ir.ui.view">
+<field name="name">dealership.vehicle.summary.kanban</field>
+<field name="model">dealership.vehicle</field>
+<field name="arch" type="xml">
+    <kanban class="o_kanban_dashboard o_dealership_summary_dashboard" create="0" group_create="0">
+        <field name="state"/>
+
+        <templates>
+            <t t-name="kanban-box">
+                <!-- This would need to be enhanced with computed fields or a different approach -->
+                <!-- for showing aggregated counts across all vehicles -->
+                <div class="o_kanban_record o_kanban_summary_card">
+                    <div class="o_kanban_content text-center">
+                        <div class="o_summary_icon mb-3">
+                            <i class="fa fa-car fa-3x text-primary"/>
+                        </div>
+                        <div class="o_summary_title">
+                            Vehicle Inventory Summary
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <div class="o_summary_stat available">
+                                    <div class="o_stat_value text-success">
+                                        <!-- This would need a computed field -->
+                                        <span class="counter">0</span>
                                     </div>
+                                    <div class="o_stat_label">Available</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="o_summary_stat sold">
+                                    <div class="o_stat_value text-warning">
+                                        <!-- This would need a computed field -->
+                                        <span class="counter">0</span>
+                                    </div>
+                                    <div class="o_stat_label">Sold</div>
                                 </div>
                             </div>
                         </div>
-                    </t>
-                </templates>
-            </kanban>
-        </field>
-    </record>
-
-    <!-- Custom CSS for the dashboard -->
-    <template id="dealership_dashboard_assets" name="Dealership Dashboard Assets">
-        <xpath expr="." position="inside">
-            <style type="text/css">
-                /* Dashboard Kanban Base Styles */
-                .o_dealership_dashboard .o_kanban_record {
-                    margin: 10px;
-                    border-radius: 16px;
-                    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                    border: none;
-                    overflow: hidden;
-                    position: relative;
-                }
-
-                .o_dealership_dashboard .o_kanban_record:hover {
-                    transform: translateY(-4px);
-                    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
-                }
-
-                .o_dealership_dashboard .o_kanban_content {
-                    padding: 24px;
-                    position: relative;
-                }
-
-                /* Available Vehicles Card */
-                .o_kanban_card_available {
-                    background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 50%, #b2f2d7 100%);
-                    border-left: 6px solid #10b981;
-                }
-
-                .o_kanban_card_available::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    width: 60px;
-                    height: 60px;
-                    background: rgba(16, 185, 129, 0.1);
-                    border-radius: 0 16px 0 60px;
-                }
-
-                /* Sold Vehicles Card */
-                .o_kanban_card_sold {
-                    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
-                    border-left: 6px solid #f59e0b;
-                }
-
-                .o_kanban_card_sold::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    width: 60px;
-                    height: 60px;
-                    background: rgba(245, 158, 11, 0.1);
-                    border-radius: 0 16px 0 60px;
-                }
-
-                /* Reserved Vehicles Card */
-                .o_kanban_card_reserved {
-                    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%);
-                    border-left: 6px solid #3b82f6;
-                }
-
-                .o_kanban_card_reserved::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    width: 60px;
-                    height: 60px;
-                    background: rgba(59, 130, 246, 0.1);
-                    border-radius: 0 16px 0 60px;
-                }
-
-                /* Returned Vehicles Card */
-                .o_kanban_card_returned {
-                    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
-                    border-left: 6px solid #64748b;
-                }
-
-                .o_kanban_card_returned::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    width: 60px;
-                    height: 60px;
-                    background: rgba(100, 116, 139, 0.1);
-                    border-radius: 0 16px 0 60px;
-                }
-
-                /* Group Headers */
-                .o_dealership_dashboard .o_kanban_group_header {
-                    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-                    color: white;
-                    font-weight: 700;
-                    padding: 16px 20px;
-                    border-radius: 12px;
-                    margin-bottom: 16px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                }
-
-                .o_dealership_dashboard .o_kanban_group_title {
-                    font-size: 1.1rem;
-                    display: flex;
-                    align-items: center;
-                }
-
-                .o_dealership_dashboard .o_kanban_group_counter {
-                    background: rgba(255,255,255,0.2);
-                    color: white;
-                    font-weight: 600;
-                    padding: 6px 12px;
-                    border-radius: 20px;
-                    font-size: 0.9rem;
-                }
-
-                /* Record Header */
-                .o_dealership_dashboard .o_kanban_record_title {
-                    font-size: 1.2rem;
-                    font-weight: 700;
-                    color: #1f2937;
-                    margin-bottom: 4px;
-                }
-
-                .o_dealership_dashboard .o_kanban_record_subtitle {
-                    font-size: 0.85rem;
-                    color: #6b7280;
-                    font-weight: 500;
-                }
-
-                /* Vehicle Details Grid */
-                .o_dealership_dashboard .o_vehicle_details_grid {
-                    background: rgba(255,255,255,0.8);
-                    border-radius: 12px;
-                    padding: 16px;
-                    margin: 16px 0;
-                    backdrop-filter: blur(10px);
-                }
-
-                .o_dealership_dashboard .o_detail_row {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-bottom: 8px;
-                }
-
-                .o_dealership_dashboard .o_detail_row:last-child {
-                    margin-bottom: 0;
-                }
-
-                .o_dealership_dashboard .o_detail_item {
-                    flex: 1;
-                    display: flex;
-                    align-items: center;
-                    padding: 0 8px;
-                }
-
-                .o_dealership_dashboard .o_detail_item:first-child {
-                    padding-left: 0;
-                }
-
-                .o_dealership_dashboard .o_detail_item:last-child {
-                    padding-right: 0;
-                }
-
-                .o_dealership_dashboard .o_label {
-                    font-weight: 600;
-                    color: #374151;
-                    font-size: 0.8rem;
-                    margin-right: 6px;
-                    display: flex;
-                    align-items: center;
-                }
-
-                .o_dealership_dashboard .o_value {
-                    color: #1f2937;
-                    font-weight: 500;
-                    font-size: 0.85rem;
-                }
-
-                /* Quantity Section */
-                .o_dealership_dashboard .o_quantity_section {
-                    text-align: center;
-                    margin: 20px 0;
-                }
-
-                .o_dealership_dashboard .o_quantity_display {
-                    background: rgba(255,255,255,0.9);
-                    border-radius: 16px;
-                    padding: 20px;
-                    display: inline-block;
-                    min-width: 120px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-                }
-
-                .o_dealership_dashboard .o_quantity_number {
-                    font-size: 3rem;
-                    font-weight: 800;
-                    line-height: 1;
-                    margin-bottom: 8px;
-                    background: linear-gradient(45deg, currentColor, currentColor);
-                    -webkit-background-clip: text;
-                    background-clip: text;
-                }
-
-                .o_dealership_dashboard .o_quantity_label {
-                    font-size: 0.8rem;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    color: #6b7280;
-                }
-
-                /* Footer Tags */
-                .o_dealership_dashboard .o_kanban_record_bottom {
-                    display: flex;
-                    justify-content: center;
-                    margin-top: 16px;
-                }
-
-                .o_dealership_dashboard .o_kanban_tags_section {
-                    display: flex;
-                    gap: 8px;
-                    flex-wrap: wrap;
-                    justify-content: center;
-                }
-
-                .o_dealership_dashboard .badge {
-                    font-size: 0.7rem;
-                    font-weight: 600;
-                    padding: 6px 12px;
-                    border-radius: 20px;
-                    text-transform: capitalize;
-                    letter-spacing: 0.5px;
-                    border: 2px solid transparent;
-                    background-clip: padding-box;
-                }
-
-                /* Management Button */
-                .o_dealership_dashboard .o_kanban_manage_toggle_button {
-                    color: #6b7280;
-                    font-size: 1.2rem;
-                    transition: all 0.2s ease;
-                    padding: 8px;
-                    border-radius: 8px;
-                }
-
-                .o_dealership_dashboard .o_kanban_manage_toggle_button:hover {
-                    color: #374151;
-                    background: rgba(255,255,255,0.8);
-                }
-
-                /* Management Panel */
-                .o_dealership_dashboard .o_kanban_manage_pane {
-                    border-radius: 12px;
-                    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-                    border: none;
-                    padding: 20px;
-                    background: white;
-                }
-
-                .o_dealership_dashboard .o_kanban_card_manage_title {
-                    color: #1f2937;
-                    font-size: 0.95rem;
-                    font-weight: 700;
-                    margin-bottom: 12px;
-                    padding-bottom: 8px;
-                    border-bottom: 2px solid #e5e7eb;
-                    display: flex;
-                    align-items: center;
-                }
-
-                .o_dealership_dashboard .dropdown-item {
-                    font-size: 0.85rem;
-                    padding: 10px 16px;
-                    border-radius: 8px;
-                    margin-bottom: 4px;
-                    color: #374151;
-                    font-weight: 500;
-                    display: flex;
-                    align-items: center;
-                    transition: all 0.2s ease;
-                }
-
-                .o_dealership_dashboard .dropdown-item:hover {
-                    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-                    color: #1f2937;
-                    transform: translateX(4px);
-                }
-
-                /* Animation for cards */
-                .o_dealership_dashboard .o_kanban_record {
-                    animation: slideInUp 0.5s ease-out forwards;
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-
-                .o_dealership_dashboard .o_kanban_record:nth-child(1) { animation-delay: 0.1s; }
-                .o_dealership_dashboard .o_kanban_record:nth-child(2) { animation-delay: 0.2s; }
-                .o_dealership_dashboard .o_kanban_record:nth-child(3) { animation-delay: 0.3s; }
-                .o_dealership_dashboard .o_kanban_record:nth-child(4) { animation-delay: 0.4s; }
-
-                @keyframes slideInUp {
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-
-                /* Responsive Design */
-                @media (max-width: 768px) {
-                    .o_dealership_dashboard .o_quantity_number {
-                        font-size: 2.5rem;
-                    }
-                    
-                    .o_dealership_dashboard .o_kanban_content {
-                        padding: 16px;
-                    }
-
-                    .o_dealership_dashboard .o_detail_row {
-                        flex-direction: column;
-                        gap: 8px;
-                    }
-
-                    .o_dealership_dashboard .o_detail_item {
-                        padding: 0;
-                        justify-content: space-between;
-                    }
-                }
-
-                @media (max-width: 576px) {
-                    .o_dealership_dashboard .o_kanban_record {
-                        margin: 8px 4px;
-                    }
-                    
-                    .o_dealership_dashboard .o_vehicle_details_grid {
-                        padding: 12px;
-                    }
-                }
-
-                /* Loading animation for quantity numbers */
-                .o_dealership_dashboard .o_quantity_number {
-                    animation: countUp 1s ease-out forwards;
-                }
-
-                @keyframes countUp {
-                    from {
-                        transform: scale(0.8);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: scale(1);
-                        opacity: 1;
-                    }
-                }
-
-                /* Special hover effects for different states */
-                .o_kanban_card_available:hover {
-                    box-shadow: 0 12px 32px rgba(16, 185, 129, 0.2);
-                }
-
-                .o_kanban_card_sold:hover {
-                    box-shadow: 0 12px 32px rgba(245, 158, 11, 0.2);
-                }
-
-                .o_kanban_card_reserved:hover {
-                    box-shadow: 0 12px 32px rgba(59, 130, 246, 0.2);
-                }
-
-                .o_kanban_card_returned:hover {
-                    box-shadow: 0 12px 32px rgba(100, 116, 139, 0.2);
-                }
-            </style>dashboard .o_kanban_details {
-                    background: rgba(255,255,255,0.7);
-                    border-radius: 8px;
-                    padding: 12px;
-                    margin: 12px 0;
-                }
-
-                .o_dealership_dashboard .o_kanban_detail_item {
-                    font-size: 0.85rem;
-                    margin-bottom: 4px;
-                }
-
-                .o_dealership_dashboard .o_label {
-                    font-weight: 600;
-                    color: #6c757d;
-                }
-
-                /* Footer Styling */
-                .o_dealership_dashboard .o_kanban_footer {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-
-                /* Status Badge Customization */
-                .o_dealership_dashboard .badge {
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                    padding: 6px 12px;
-                    border-radius: 20px;
-                    text-transform: capitalize;
-                }
-
-                /* Management Button */
-                .o_dealership_dashboard .o_kanban_manage_toggle_button {
-                    color: #6c757d;
-                    font-size: 1.1rem;
-                    transition: color 0.2s ease;
-                }
-
-                .o_dealership_dashboard .o_kanban_manage_toggle_button:hover {
-                    color: #495057;
-                }
-
-                /* Management Panel */
-                .o_dealership_dashboard .o_kanban_manage_pane {
-                    border-radius: 8px;
-                    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-                    border: none;
-                }
-
-                .o_dealership_dashboard .o_kanban_card_manage_title {
-                    color: #495057;
-                    font-size: 0.9rem;
-                    font-weight: 600;
-                    margin-bottom: 8px;
-                    padding-bottom: 4px;
-                    border-bottom: 1px solid #dee2e6;
-                }
-
-                .o_dealership_dashboard .dropdown-item {
-                    font-size: 0.85rem;
-                    padding: 6px 12px;
-                    border-radius: 4px;
-                    margin-bottom: 2px;
-                }
-
-                .o_dealership_dashboard .dropdown-item:hover {
-                    background-color: #f8f9fa;
-                }
-
-                /* Responsive Design */
-                @media (max-width: 768px) {
-                    .o_dealership_dashboard .o_primary_value {
-                        font-size: 2.5rem;
-                    }
-                    
-                    .o_dealership_dashboard .o_kanban_content {
-                        padding: 15px;
-                    }
-                }
-
-                /* Group Headers */
-                .o_dealership_dashboard .o_kanban_group_header {
-                    background: linear-gradient(90deg, #6c757d 0%, #495057 100%);
-                    color: white;
-                    font-weight: 600;
-                    padding: 12px 16px;
-                    border-radius: 8px 8px 0 0;
-                    margin-bottom: 8px;
-                }
-
-                /* Animation for numbers */
-                .o_dealership_dashboard .o_value {
-                    display: inline-block;
-                    animation: fadeInUp 0.6s ease-out;
-                }
-
-                @keyframes fadeInUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(20px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-            </style>
-        </xpath>
-    </template>
-
-    <!-- Summary Dashboard View (Alternative approach with aggregated data) -->
-    <record id="view_dealership_summary_kanban" model="ir.ui.view">
-        <field name="name">dealership.vehicle.summary.kanban</field>
-        <field name="model">dealership.vehicle</field>
-        <field name="arch" type="xml">
-            <kanban class="o_kanban_dashboard o_dealership_summary_dashboard" create="0" group_create="0">
-                <field name="state"/>
-                
-                <templates>
-                    <t t-name="kanban-box">
-                        <!-- This would need to be enhanced with computed fields or a different approach -->
-                        <!-- for showing aggregated counts across all vehicles -->
-                        <div class="o_kanban_record o_kanban_summary_card">
-                            <div class="o_kanban_content text-center">
-                                <div class="o_summary_icon mb-3">
-                                    <i class="fa fa-car fa-3x text-primary"/>
-                                </div>
-                                <div class="o_summary_title">
-                                    Vehicle Inventory Summary
-                                </div>
-                                <div class="row mt-4">
-                                    <div class="col-6">
-                                        <div class="o_summary_stat available">
-                                            <div class="o_stat_value text-success">
-                                                <!-- This would need a computed field -->
-                                                <span class="counter">0</span>
-                                            </div>
-                                            <div class="o_stat_label">Available</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="o_summary_stat sold">
-                                            <div class="o_stat_value text-warning">
-                                                <!-- This would need a computed field -->
-                                                <span class="counter">0</span>
-                                            </div>
-                                            <div class="o_stat_label">Sold</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </t>
-                </templates>
-            </kanban>
-        </field>
-    </record>
-
-    <!-- Action for the dashboard -->
-    <record id="action_dealership_vehicle_dashboard" model="ir.actions.act_window">
-        <field name="name">Vehicle Dashboard</field>
-        <field name="res_model">dealership.vehicle</field>
-        <field name="view_mode">kanban,tree,form</field>
-        <field name="view_id" ref="view_dealership_vehicle_dashboard_kanban"/>
-        <field name="context">{
-            'group_by': ['state'],
-            'search_default_group_by_state': 1
-        }</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                No vehicles found!
-            </p>
-            <p>
-                Create your first vehicle record to get started with the dealership management system.
-            </p>
-        </field>
-    </record>
-
-</odoo>
+                    </div>
+                </div>
+            </t>
+        </templates>
+    </kanban>
+</field>
+</record>
+
+        <!-- Action for the dashboard -->
+<record id="action_dealership_vehicle_dashboard" model="ir.actions.act_window">
+<field name="name">Vehicle Dashboard</field>
+<field name="res_model">dealership.vehicle</field>
+<field name="view_mode">kanban,tree,form</field>
+<field name="view_id" ref="view_dealership_vehicle_dashboard_kanban"/>
+<field name="context">{
+    'group_by': ['state'],
+    'search_default_group_by_state': 1
+    }
+</field>
+<field name="help" type="html">
+    <p class="o_view_nocontent_smiling_face">
+        No vehicles found!
+    </p>
+    <p>
+        Create your first vehicle record to get started with the dealership management system.
+    </p>
+</field>
+</record>
+
+        </odoo>

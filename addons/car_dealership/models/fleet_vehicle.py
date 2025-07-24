@@ -11,6 +11,7 @@ class FleetVehicle(models.Model):
 
     @api.onchange('sale_status')
     def _onchange_sale_status(self):
+        self.ensure_one()
         """Update fleet vehicle state to 'sold' when sale order is confirmed"""
         if self.sale_status == 'sale':  # Sale order confirmed
             # Find the 'sold' state record

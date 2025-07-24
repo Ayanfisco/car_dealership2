@@ -14,10 +14,12 @@
                 <!--                        class="btn-success" invisible="state not in ['available', 'reserved']"/>-->
                 <!--                <button name="action_return_vehicle" type="object" string="Return to Consignor"-->
                 <!--                        class="btn-warning" invisible="business_type != 'consigned' or state != 'available'"/>-->
-                <button name="create_fleet_vehicle" type="object" string="Create Fleet Record"
+                <!-- <button name="create_fleet_vehicle" type="object" string="Create Fleet Record"
+                        class="btn-success" invisible="fleet_vehicle_id or not is_vehicle"/> -->
+                <button name="create_fleet_vehicles_from_serials" type="object" string="Create Fleet Record From Serial"
                         class="btn-success" invisible="fleet_vehicle_id or not is_vehicle"/>
-                <field name="state" widget="statusbar" statusbar_visible="available,reserved,sold"
-                       invisible="not is_vehicle"/>
+                <!-- <field name="state" widget="statusbar" statusbar_visible="available,reserved,sold"
+                       invisible="not is_vehicle"/> -->
             </header>
             <xpath expr="//label[@for='purchase_ok']" position="after">
                 <field name="is_vehicle"/>

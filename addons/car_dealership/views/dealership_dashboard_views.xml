@@ -1,13 +1,162 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="view_dealership_vehicle_dashboard" model="ir.ui.view">
-        <field name="name">dealership.vehicle.dashboard</field>
-        <field name="model">dealership.vehicle</field>
-        <field name="arch" type="xml">
-            <graph string="Vehicles by Business Type" type="bar">
-                <field name="business_type" groupby="1"/>
-                <field name="id" type="count"/>
-            </graph>
-        </field>
-    </record>
-</odoo>
+<!-- Dealership Dashboard View -->
+<record id="view_dealership_dashboard" model="ir.ui.view">
+    <field name="name">dealership.dashboard</field>
+    <field name="model">dealership.vehicle</field>
+    <field name="arch" type="xml">
+        <kanban create="false" class="o_kanban_dashboard">
+            <field name="state"/>
+            <field name="business_type"/>
+            <field name="profit_amount"/>
+            <field name="selling_price"/>
+            <templates>
+                <t t-name="kanban-box">
+                    <div class="o_dashboard_section">
+                        <!-- KPI Cards Row -->
+                        <div class="row o_dashboard_kpi">
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h4>Available</h4>
+                                                <h2 id="available_count">0</h2>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <i class="fa fa-car fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h4>Sold</h4>
+                                                <h2 id="sold_count">0</h2>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <i class="fa fa-check-circle fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card bg-warning text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h4>Reserved</h4>
+                                                <h2 id="reserved_count">0</h2>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <i class="fa fa-clock fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <div class="card bg-info text-white">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h4>Total Revenue</h4>
+                                                <h2 id="total_revenue">$0</h2>
+                                            </div>
+                                            <div class="align-self-center">
+                                                <i class="fa fa-dollar-sign fa-2x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts Row -->
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3>Sales by Make</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="salesByMakeChart" style="height: 300px;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3>Vehicle Status Distribution</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="statusChart" style="height: 300px;"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions Row -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3>Quick Actions</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <button class="btn btn-primary btn-lg btn-block"
+                                                        onclick="window.location.href='/web#action=dealership.action_dealership_vehicle_dashboard&amp;view_type=form'">
+                                                    <i class="fa fa-plus"></i> Add New Vehicle
+                                                </button>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button class="btn btn-success btn-lg btn-block"
+                                                        onclick="window.location.href='/web#action=dealership.action_vehicle_sales_orders'">
+                                                    <i class="fa fa-shopping-cart"></i> View Sales
+                                                </button>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button class="btn btn-info btn-lg btn-block"
+                                                        onclick="window.location.href='/web#action=dealership.action_vehicle_purchase_orders'">
+                                                    <i class="fa fa-truck"></i> Purchase Orders
+                                                </button>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button class="btn btn-warning btn-lg btn-block"
+                                                        onclick="window.location.href='/web#action=dealership.action_vehicle_sales_report'">
+                                                    <i class="fa fa-chart-bar"></i> Reports
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </templates>
+        </kanban>
+    </field>
+</record>
+
+<!-- Dashboard Action -->
+<record id="action_dealership_dashboard" model="ir.actions.act_window">
+    <field name="name">Dealership Dashboard</field>
+    <field name="res_model">dealership.vehicle</field>
+    <field name="view_mode">kanban</field>
+    <field name="view_id" ref="view_dealership_dashboard"/>
+    <field name="target">main</field>
+    <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+            Welcome to your Dealership Dashboard!
+        </p>
+        <p>
+            Monitor your vehicle inventory, sales performance, and key metrics all in one place.
+        </p>
+    </field>
+</record>

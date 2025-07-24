@@ -36,6 +36,8 @@
         'product',
         'stock_account',  # Uncommented - this is usually needed
         'sale_stock',
+        'base_import',
+        'spreadsheet_dashboard_edition',
         # Removed potentially problematic dependencies
         'partner_autocomplete',  # This might not be available in your setup
         # 'sale_pdf_quote_builder',  # This might be causing conflicts
@@ -49,11 +51,16 @@
         'data/dealership_data.xml',
         'data/product_category_data.xml',
         'data/dealership_cron.xml',
+        'data/fleet_vehicle_state_data.xml',
 
         # Views
         'views/dealership_vehicle_views.xml',
-        'views/dealership_dashboard_views.xml',
+        # 'views/dealership_dashboard_views.xml',
         'views/product_template_views.xml',
+        'views/fleet_vehicle_views.xml',
+        # 'views/purchase_order_line_views.xml',
+        'views/actions.xml',
+
         # 'views/dealership_purchase_views.xml',
         # 'views/dealership_sale_views.xml',
         # 'views/res_config_settings_views.xml',
@@ -63,7 +70,6 @@
 
         # Reports
         'report/dealership_vehicle_report.xml',
-        'security/dealership_vehicle_rule.xml',
     ],
     'demo': [
         'data/demo_dealership_vehicle.xml',

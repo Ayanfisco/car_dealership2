@@ -8,27 +8,28 @@
 
     <!-- Vehicles Menu -->
     <menuitem id="menu_dealership_vehicles"
-              name="Vehicles"
+              name="Dashboard"
               parent="menu_dealership_root"
+              action="action_dealership_vehicle_dashboard"
               sequence="10"/>
 
-    <menuitem id="menu_dealership_vehicle_all"
-              name="All Vehicles"
-              parent="menu_dealership_vehicles"
-              action="action_dealership_vehicle"
-              sequence="10"/>
+<!--    <menuitem id="menu_dealership_vehicle_all"-->
+<!--              name="All Vehicles"-->
+<!--              parent="menu_dealership_vehicles"-->
+<!--              action="action_dealership_vehicle"-->
+<!--              sequence="10"/>-->
 
-    <menuitem id="menu_dealership_vehicle_available"
-              name="Available Vehicles"
-              parent="menu_dealership_vehicles"
-              action="action_dealership_vehicle_available"
-              sequence="20"/>
+<!--    <menuitem id="menu_dealership_vehicle_available"-->
+<!--              name="Available Vehicles"-->
+<!--              parent="menu_dealership_vehicles"-->
+<!--              action="action_dealership_vehicle_available"-->
+<!--              sequence="20"/>-->
 
-    <menuitem id="menu_dealership_vehicle_sold"
-              name="Sold Vehicles"
-              parent="menu_dealership_vehicles"
-              action="action_dealership_vehicle_sold"
-              sequence="30"/>
+<!--    <menuitem id="menu_dealership_vehicle_sold"-->
+<!--              name="Sold Vehicles"-->
+<!--              parent="menu_dealership_vehicles"-->
+<!--              action="action_dealership_vehicle_sold"-->
+<!--              sequence="30"/>-->
 
     <menuitem id="menu_dealership_products"
               name="Products"

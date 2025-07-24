@@ -74,9 +74,7 @@ class ProductTemplate(models.Model):
     # Status
     state = fields.Selection([
         ('available', 'Available'),
-        ('reserved', 'Reserved'),
         ('sold', 'Sold'),
-        ('returned', 'Returned')
     ], string='Status', default='available', tracking=True)
 
     # Relations
@@ -193,6 +191,25 @@ class ProductTemplate(models.Model):
         if product.is_vehicle:
             for variant in product.product_variant_ids:
                 variant.type = 'consu'
+                # Create Dealership Vehicle records immediately
+            if not self.env['dealership.vehicle'].search([('product_id', '=', product.id)]):
+                dealership_vals = {
+                    'name': product.name,
+                    'make_id': product.make_id.id,
+                    'model_id': product.model_id.id,
+                    'product_id': product.id,
+                }
+                self.env['dealership.vehicle'].create(dealership_vals)
+
+                # Create initial inventory
+                stock_location = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
+                if stock_location:
+                    self.env['stock.quant'].create({
+                        'product_id': product.id,
+                        'location_id': stock_location.id,
+                        'quantity': 1.0,
+                        'inventory_quantity': 1.0,
+                    })
         return product
 
     def write(self, vals):
@@ -233,7 +250,98 @@ class ProductTemplate(models.Model):
                         'inventory_quantity': 1.0,
                     })
         return res
+    def create_fleet_vehicles_from_serials(self):
+        """Create fleet vehicle records for each serial/lot number from purchases"""
+        if not self.is_vehicle:
+            raise UserError(_('This product is not marked as a vehicle.'))
+        
+        # Find all stock move lines for this product with serial/lot numbers
+        stock_move_lines = self.env['stock.move.line'].search([
+            ('product_id', 'in', self.product_variant_ids.ids),
+            ('lot_id', '!=', False),  # Has serial/lot number
+            ('state', '=', 'done'),   # Only completed moves
+            ('location_dest_id.usage', '=', 'internal'),  # Incoming to internal location
+        ])
+        
+        if not stock_move_lines:
+            raise UserError(_('No received stock with serial/lot numbers found for this product.'))
+        
+        created_vehicles = []
+        fleet_vehicle_obj = self.env['fleet.vehicle']
+        
+        for move_line in stock_move_lines:
+            serial_number = move_line.lot_id.name
+            
+            # Check if fleet vehicle already exists for this serial number
+            existing_vehicle = fleet_vehicle_obj.search([
+                ('vin_sn', '=', serial_number)
+            ], limit=1)
+            
+            if not existing_vehicle:
+                # Get purchase order info if available
+                purchase_order = move_line.move_id.purchase_line_id.order_id if move_line.move_id.purchase_line_id else None
+                
+                fleet_vals = {
+                    'model_id': self.model_id.id,
+                    'license_plate': serial_number,  # You might want to use a different field
+                    'vin_sn': serial_number,
+                    'color': self.color,
+                    'odometer': self.mileage or 0,
+                    'transmission': self.transmission,
+                    'category_id': self.fleet_category_id.id if self.fleet_category_id else False,
+                    'model_year': self.year,
+                    'acquisition_date': move_line.date.date() if move_line.date else fields.Date.today(),
+                    'car_value': self.purchase_price,
+                    'fuel_type': self.fuel_type,
+                    # Add purchase order reference if needed
+                    'driver_id': False,  # Set default driver if needed
+                    'company_id': self.env.company.id,
+                }
+                
+                try:
+                    fleet_vehicle = fleet_vehicle_obj.create(fleet_vals)
+                    created_vehicles.append(fleet_vehicle)
+                    
+                    # Create dealership vehicle record linking to this fleet vehicle
+                    dealership_vals = {
+                        'name': f"{self.name} - {serial_number}",
+                        'make_id': self.make_id.id,
+                        'model_id': self.model_id.id,
+                        'product_id': self.id,
+                        'fleet_vehicle_id': fleet_vehicle.id,
+                        'business_type': self.business_type or 'owner',
+                        'vin_number': serial_number,
+                        'year': self.year,
+                        'color': self.color,
+                        'purchase_price': self.purchase_price,
+                        'selling_price': self.selling_price,
+                    }
+                    
+                    # Check if dealership vehicle already exists
+                    existing_dealership = self.env['dealership.vehicle'].search([
+                        ('vin_number', '=', serial_number)
+                    ], limit=1)
+                    
+                    if not existing_dealership:
+                        self.env['dealership.vehicle'].create(dealership_vals)
+                        
+                except Exception as e:
+                    logging.warning(f"Failed to create fleet vehicle for serial {serial_number}: {str(e)}")
+                    continue
+        
+        if created_vehicles:
+            # Post message about created vehicles
+            vehicle_names = [v.name or v.vin_sn for v in created_vehicles]
+            self.message_post(
+                body=_('Created %d fleet vehicle(s): %s') % (
+                    len(created_vehicles), 
+                    ', '.join(vehicle_names)
+                )
+            )
+        else:
+            raise UserError(_('No new fleet vehicles were created. They may already exist or no valid serial numbers found.'))
 
+    
     def action_reserve(self):
         """Reserve the vehicle"""
         self.write({'state': 'reserved'})
@@ -257,26 +365,132 @@ class ProductTemplate(models.Model):
         self.message_post(body=_('Vehicle has been returned to consignor.'))
 
     def create_fleet_vehicle(self):
-        """Create corresponding fleet vehicle record"""
-        if not self.fleet_vehicle_id:
-            fleet_vals = {
-                'model_id': self.model_id.id,
-                'license_plate': self.vin_number or '',
-                'vin_sn': self.vin_number,
-                'color': self.color,
-                'odometer': self.mileage,
-                # 'fuel_type': self.fuel_type,
-                'transmission': self.transmission,
-                # 'engine_size': self.engine_size,
-                'category_id': self.fleet_category_id,
-                'model_year': self.year,
-                'acquisition_date': fields.Date.today(),
-                'car_value': self.purchase_price,
-            }
-            fleet_vehicle = self.env['fleet.vehicle'].create(fleet_vals)
-            self.fleet_vehicle_id = fleet_vehicle.id
-            self.message_post(body=_('Fleet vehicle record created: %s') % fleet_vehicle.name)
+        """Create corresponding fleet vehicle record(s) - Updated to handle multiple serials"""
+        try:
+            return self.create_fleet_vehicles_from_serials()
+        except UserError:
+            # Fallback to original single vehicle creation if no serials found
+            if not self.fleet_vehicle_id:
+                fleet_vals = {
+                    'model_id': self.model_id.id,
+                    'license_plate': self.vin_number or self.name,
+                    'vin_sn': self.vin_number,
+                    'color': self.color,
+                    'odometer': self.mileage,
+                    'transmission': self.transmission,
+                    'category_id': self.fleet_category_id.id if self.fleet_category_id else False,
+                    'model_year': self.year,
+                    'acquisition_date': fields.Date.today(),
+                    'car_value': self.purchase_price,
+                    'fuel_type': self.fuel_type,
+                }
+                fleet_vehicle = self.env['fleet.vehicle'].create(fleet_vals)
+                self.fleet_vehicle_id = fleet_vehicle.id
+                self.message_post(body=_('Fleet vehicle record created: %s') % fleet_vehicle.name)
+                
+                return {
+                    'type': 'ir.actions.act_window',
+                    'name': _('Fleet Vehicle'),
+                    'res_model': 'fleet.vehicle',
+                    'res_id': fleet_vehicle.id,
+                    'view_mode': 'tree',
+                    'target': 'current',
+                }
+    def create_fleet_vehicles_from_purchase(self, purchase_order_line_ids=None):
+        """Alternative method: Create fleet vehicles from specific purchase order lines"""
+        if not self.is_vehicle:
+            raise UserError(_('This product is not marked as a vehicle.'))
+        
+        # If specific PO lines are provided, use them, otherwise find all
+        if purchase_order_line_ids:
+            po_lines = self.env['purchase.order.line'].browse(purchase_order_line_ids)
+        else:
+            po_lines = self.env['purchase.order.line'].search([
+                ('product_id', 'in', self.product_variant_ids.ids),
+                ('state', 'in', ['purchase', 'done'])
+            ])
+        
+        created_vehicles = []
+        
+        for po_line in po_lines:
+            # Get all move lines for this PO line that have serial numbers
+            move_lines = po_line.move_ids.mapped('move_line_ids').filtered(
+                lambda ml: ml.lot_id and ml.state == 'done' and ml.location_dest_id.usage == 'internal'
+            )
+            
+            for move_line in move_lines:
+                serial_number = move_line.lot_id.name
+                
+                # Check if vehicle already exists
+                existing_vehicle = self.env['fleet.vehicle'].search([
+                    ('vin_sn', '=', serial_number)
+                ], limit=1)
+                
+                if not existing_vehicle:
+                    fleet_vals = {
+                        'model_id': self.model_id.id,
+                        'vin_sn': serial_number,
+                        'license_plate': serial_number,
+                        'color': self.color,
+                        'model_year': self.year,
+                        'acquisition_date': move_line.date.date() if move_line.date else fields.Date.today(),
+                        'car_value': po_line.price_unit,
+                        'fuel_type': self.fuel_type,
+                        'transmission': self.transmission,
+                        'category_id': self.fleet_category_id.id if self.fleet_category_id else False,
+                        'company_id': po_line.company_id.id,
+                    }
+                    
+                    fleet_vehicle = self.env['fleet.vehicle'].create(fleet_vals)
+                    created_vehicles.append(fleet_vehicle)
+        
+        return created_vehicles
 
+
+    # Add this method to automatically create vehicles when stock is received
+    # @api.model
+    # def _auto_create_fleet_from_receipt(self, move_line):
+    #     """Automatically create fleet vehicle when stock with serial is received"""
+    #     if move_line.product_id.is_vehicle and move_line.lot_id:
+    #         product_template = move_line.product_id.product_tmpl_id
+            
+    #         # Check if fleet vehicle already exists
+    #         existing_vehicle = self.env['fleet.vehicle'].search([
+    #             ('vin_sn', '=', move_line.lot_id.name)
+    #         ], limit=1)
+            
+    #         if not existing_vehicle:
+    #             fleet_vals = {
+    #                 'model_id': product_template.model_id.id,
+    #                 'vin_sn': move_line.lot_id.name,
+    #                 'license_plate': move_line.lot_id.name,
+    #                 'color': product_template.color,
+    #                 'model_year': product_template.year,
+    #                 'acquisition_date': move_line.date.date() if move_line.date else fields.Date.today(),
+    #                 'fuel_type': product_template.fuel_type,
+    #                 'transmission': product_template.transmission,
+    #                 'category_id': product_template.fleet_category_id.id if product_template.fleet_category_id else False,
+    #                 'company_id': move_line.company_id.id,
+    #             }
+                
+    #             fleet_vehicle = self.env['fleet.vehicle'].create(fleet_vals)
+                
+    #             # Also create dealership vehicle record
+    #             dealership_vals = {
+    #                 'name': f"{product_template.name} - {move_line.lot_id.name}",
+    #                 'make_id': product_template.make_id.id,
+    #                 'model_id': product_template.model_id.id,
+    #                 'product_id': product_template.id,
+    #                 'fleet_vehicle_id': fleet_vehicle.id,
+    #                 'vin_number': move_line.lot_id.name,
+    #                 'business_type': product_template.business_type or 'owner',
+    #             }
+                
+    #             self.env['dealership.vehicle'].create(dealership_vals)
+                
+    #             return fleet_vehicle
+        
+    #     return False
     # Add missing computed methods
     @api.depends('purchase_price', 'commission_value', 'commission_type')
     def _compute_commission_amount(self):

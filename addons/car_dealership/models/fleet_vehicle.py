@@ -1,29 +1,15 @@
 # Extend fleet.vehicle to create a dealership record when applicable
-from odoo import models, api, _
+from odoo import models, fields, api, _
 
 class FleetVehicle(models.Model):
     _inherit = 'fleet.vehicle'
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        records = super().create(vals_list)
+    product_id = fields.Many2one('product.template', string='Dealership Vehicle')
+    fleet_status = fields.Selection(related='product_id.state', string='Fleet Status', store=True)
 
-        for record in records:
-            # Optional condition: only create dealership vehicle for specific use cases
-            if record.model_id:
-                dealership_vehicle = self.env['dealership.vehicle'].create({
-                    'model_id': record.model_id.id,
-                    'make_id': record.model_id.brand_id.id,
-                    'vin_number': record.vin_sn,
-                    'color': record.color,
-                    'year': record.model_year,
-                    'mileage': record.odometer,
-                    'fleet_category_id': record.category_id.id if record.category_id else False,
-                    'transmission': record.transmission,
-                    'fleet_vehicle_id': record.id,
-                    # 'business_type': 'owner',  # or infer this dynamically
-                    'purchase_price': record.car_value,
-                })
-                record.message_post(body=_("Dealership record created: %s" % dealership_vehicle.name))
-
-        return records
+    @api.onchange('fleet_status')
+    def _onchange_fleet_status(self):
+        if self.fleet_status == 'available':
+            self.state_id = 'available'
+        elif self.fleet_status == 'sold':
+            self.state_id = 'sold'

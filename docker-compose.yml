@@ -1,7 +1,8 @@
-
 services:
   db:
     image: postgres:15
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: odoo
       POSTGRES_USER: odoo
@@ -27,6 +28,18 @@ services:
       - ./enterprise:/mnt/enterprise
       - ./addons:/mnt/extra-addons
     command: odoo --dev=xml -d dealership --db_host=db --db_user=odoo --db_password=odoo --db_port=5432
+    restart: always
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ayanfiscoss@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
     restart: always
 
 volumes:

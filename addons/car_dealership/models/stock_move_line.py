@@ -1,3 +1,5 @@
+from odoo import models, fields, api
+
 class StockMoveLine(models.Model):
     _inherit = 'stock.move.line'
     

@@ -7,10 +7,10 @@
               web_icon="car_dealership,static/description/icon.png"/>
 
     <!-- Vehicles Menu -->
-    <menuitem id="menu_dealership_vehicles"
+    <menuitem id="menu_vehicle_dashboard"
               name="Dashboard"
               parent="menu_dealership_root"
-              action="action_dealership_vehicle_dashboard"
+              action="action_vehicle_dashboard"
               sequence="10"/>
 
 <!--    <menuitem id="menu_dealership_vehicle_all"-->

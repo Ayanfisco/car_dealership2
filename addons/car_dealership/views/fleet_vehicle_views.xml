@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Optional: Customize the vehicle form view if needed -->
+    <!-- Customize the vehicle form view -->
     <record id="fleet_vehicle_view_form_extend" model="ir.ui.view">
         <field name="name">fleet.vehicle.form.extend</field>
         <field name="model">fleet.vehicle</field>
         <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
         <field name="arch" type="xml">
+            <!-- Modify state field behavior -->
             <field name="state_id" position="attributes">
-                
+                <attribute name="options">{ 'no_open': True}</attribute>
             </field>
         </field>
     </record>

@@ -12,6 +12,7 @@ class DealershipVehicle(models.Model):
     _order = 'create_date desc'
     
     name = fields.Char("name", tracking=True)
+    user_id = fields.Many2one('res.users', string='Responsible User', default=lambda self: self.env.user, tracking=True)
     make_id = fields.Many2one('fleet.vehicle.model.brand', string='Make', required=True)
     model_id = fields.Many2one('fleet.vehicle.model', string='Model', required=True)
     quant_id = fields.Many2one('product.product', string='Stock Quant')
@@ -48,7 +49,119 @@ class DealershipVehicle(models.Model):
         ('dealer_network', 'Dealer Network Product'),
         ('consigned', 'Consigned Product')
     ], string='Business Type', required=True, default='owner', tracking=True)
-    
+
+    # Website fields
+    website_published = fields.Boolean('Published on Website', default=False, copy=False)
+    website_description = fields.Html('Website Description', sanitize_attributes=False, translate=True)
+    website_meta_title = fields.Char("Website meta title", translate=True)
+    website_meta_description = fields.Text("Website meta description", translate=True)
+    website_meta_keywords = fields.Char("Website meta keywords", translate=True)
+    website_meta_og_img = fields.Char("Website opengraph image")
+    website_sequence = fields.Integer('Website Sequence', default=10, help='Display order on website')
+
+    # Computed fields for vehicle inventory totals
+    product_id = fields.Many2one('product.product', string='Product', required=True)
+    available = fields.Float(related='product_id.qty_available', string='Available Stock')
+    total_vehicles_available = fields.Float(
+        string='Total Available Vehicles',
+        compute='_compute_vehicle_inventory',
+        help='Total quantity of available vehicle products in inventory'
+    )
+
+    total_vehicles_reserved = fields.Float(
+        string='Total Reserved Vehicles',
+        compute='_compute_vehicle_inventory',
+        help='Total quantity of reserved vehicle products in inventory'
+    )
+
+    total_vehicles_on_hand = fields.Float(
+        string='Total Vehicles On Hand',
+        compute='_compute_vehicle_inventory',
+        help='Total quantity on hand of vehicle products in inventory'
+    )
+
+    def _compute_vehicle_inventory(self):
+        """
+        Compute the total available and reserved quantities for all vehicle products
+        Compatible with Odoo 18
+        """
+        # Get all product templates marked as vehicles
+        vehicle_products = self.env['product.template'].search([
+            ('is_vehicle', '=', True)
+        ])
+
+        if not vehicle_products:
+            # If no vehicle products found, set all values to 0
+            for record in self:
+                record.total_vehicles_available = 0.0
+                record.total_vehicles_reserved = 0.0
+                record.total_vehicles_on_hand = 0.0
+            return
+
+        # Get all product variants from these templates
+        vehicle_variants = self.env['product.product'].search([
+            ('product_tmpl_id', 'in', vehicle_products.ids)
+        ])
+
+        # Initialize totals
+        total_available = 0.0
+        total_reserved = 0.0
+        total_on_hand = 0.0
+
+        # Calculate totals using stock quants directly (more reliable)
+        for product in vehicle_variants:
+            # Get stock quants for this product in internal locations
+            quants = self.env['stock.quant'].search([
+                ('product_id', '=', product.id),
+                ('location_id.usage', '=', 'internal')
+            ])
+
+            for quant in quants:
+                total_on_hand += quant.quantity
+                total_reserved += quant.reserved_quantity
+
+        total_available = total_on_hand - total_reserved
+
+        # Set the same values for all records since this is global inventory data
+        for record in self:
+            record.total_vehicles_available = total_available
+            record.total_vehicles_reserved = total_reserved
+            record.total_vehicles_on_hand = total_on_hand
+
+    # Alternative method using direct SQL query for better performance with large datasets
+    def _compute_vehicle_inventory_sql(self):
+        """
+        Alternative computation method using SQL for better performance
+        """
+        # SQL query to get totals directly from stock_quant table
+        query = """
+            SELECT 
+                COALESCE(SUM(sq.quantity), 0) as total_on_hand,
+                COALESCE(SUM(sq.reserved_quantity), 0) as total_reserved
+            FROM stock_quant sq
+            JOIN product_product pp ON sq.product_id = pp.id
+            JOIN product_template pt ON pp.product_tmpl_id = pt.id
+            WHERE pt.is_vehicle = true
+            AND sq.location_id IN (
+                SELECT id FROM stock_location 
+                WHERE usage = 'internal'
+            )
+        """
+
+        self.env.cr.execute(query)
+        result = self.env.cr.fetchone()
+
+        if result:
+            total_on_hand = result[0] or 0.0
+            total_reserved = result[1] or 0.0
+            total_available = total_on_hand - total_reserved
+        else:
+            total_on_hand = total_reserved = total_available = 0.0
+
+        for record in self:
+            record.total_vehicles_available = total_available
+            record.total_vehicles_reserved = total_reserved
+            record.total_vehicles_on_hand = total_on_hand
     @api.depends('state')
     def _compute_dashboard_stats(self):
         """Compute dashboard statistics for all vehicles"""
@@ -203,3 +316,5 @@ class DealershipVehicle(models.Model):
             if self.color:
                 name_parts.append(self.color)
             self.name = ' '.join(name_parts)
+
+   

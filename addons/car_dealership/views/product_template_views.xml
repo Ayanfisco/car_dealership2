@@ -18,8 +18,8 @@
                         class="btn-success" invisible="fleet_vehicle_id or not is_vehicle"/> -->
                 <button name="create_fleet_vehicles_from_serials" type="object" string="Create Fleet Record From Serial"
                         class="btn-success" invisible="fleet_vehicle_id or not is_vehicle"/>
-                <!-- <field name="state" widget="statusbar" statusbar_visible="available,reserved,sold"
-                       invisible="not is_vehicle"/> -->
+                <field name="state" widget="statusbar" statusbar_visible="available,reserved,sold"
+                       invisible="not is_vehicle"/>
             </header>
             <xpath expr="//label[@for='purchase_ok']" position="after">
                 <field name="is_vehicle"/>
@@ -38,6 +38,10 @@
                         <field name="currency_id" invisible="1"/>
                         <!--                        <field name="color"/>-->
                         <field name="mileage" invisible="condition not in ['foreign_used', 'local_used']"/>
+                    </group>
+                    <group string="Media">
+                        <field name="dealership_image_ids" widget="many2many_binary"/>
+                        <field name="dealership_video_ids" widget="many2many_binary"/>
                     </group>
                 </group>
             </xpath>

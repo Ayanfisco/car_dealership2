@@ -1,3 +1,4 @@
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 import logging
@@ -75,6 +76,7 @@ class ProductTemplate(models.Model):
     state = fields.Selection([
         ('available', 'Available'),
         ('sold', 'Sold'),
+        ('reserved', 'Reserved'),
     ], string='Status', default='available', tracking=True)
 
     # Relations
@@ -86,6 +88,23 @@ class ProductTemplate(models.Model):
     image_1920 = fields.Image('Image', max_width=1920, max_height=1920)
     image_128 = fields.Image('Image 128', related='image_1920', max_width=128, max_height=128, store=True)
 
+    dealership_image_ids = fields.Many2many(
+        'ir.attachment',
+        'product_template_dealership_image_rel',
+        'product_template_id', 'attachment_id',
+        string='Dealership Images',
+        domain="[('mimetype', 'ilike', 'image')]",
+        help='Upload multiple images for this product.'
+    )
+
+    dealership_video_ids = fields.Many2many(
+        'ir.attachment',
+        'product_template_dealership_video_rel',
+        'product_template_id', 'attachment_id',
+        string='Dealership Videos',
+        domain="[('mimetype', 'ilike', 'video')]",
+        help='Upload multiple videos for this product.'
+    )
     # Computed fields
     profit_amount = fields.Monetary('Profit Amount', currency_field='currency_id',
                                     compute='_compute_profit_amount', store=True)
@@ -137,13 +156,7 @@ class ProductTemplate(models.Model):
         if self.make_id:
             return {'domain': {'model_id': [('brand_id', '=', self.make_id.id)]}}
         return {'domain': {'model_id': []}}
-
-    @api.onchange('available_quantity')
-    def _onchange_available_quantity(self):
-        if self.available_quantity == 0.00:
-            self.state = 'sold'
-        elif self.available_quantity >= 1:
-            self.state = 'available'
+    
     @api.onchange('model_id')  # Fixed: Use 'model_id' instead of 'vehicle_model_id'
     def _onchange_model_id(self):
         if self.model_id and self.make_id:
@@ -293,6 +306,7 @@ class ProductTemplate(models.Model):
                     'acquisition_date': move_line.date.date() if move_line.date else fields.Date.today(),
                     'car_value': self.purchase_price,
                     'fuel_type': self.fuel_type,
+                    # 'state': 'registered',  # Default state
                     # Add purchase order reference if needed
                     'driver_id': False,  # Set default driver if needed
                     'company_id': self.env.company.id,
@@ -314,6 +328,7 @@ class ProductTemplate(models.Model):
                         'year': self.year,
                         'color': self.color,
                         'purchase_price': self.purchase_price,
+                        
                         'selling_price': self.selling_price,
                     }
                     
@@ -340,12 +355,6 @@ class ProductTemplate(models.Model):
             )
         else:
             raise UserError(_('No new fleet vehicles were created. They may already exist or no valid serial numbers found.'))
-
-    
-    def action_reserve(self):
-        """Reserve the vehicle"""
-        self.write({'state': 'reserved'})
-        self.message_post(body=_('Vehicle has been reserved.'))
 
     # def action_make_available(self):
     #     """Make the vehicle available again"""

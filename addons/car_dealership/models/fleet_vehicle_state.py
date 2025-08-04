@@ -10,13 +10,7 @@ class FleetVehicleState(models.Model):
         # Add our new state
         selections.append(('sold', 'Sold'))
         return selections
-    
-    state = fields.Selection(
-        selection=_get_state_selections,
-        string='State',
-        required=True,
-        default='available'
-    )
+
     
     def _valid_field_parameter(self, field, name):
         # Add 'tracking' to valid parameters

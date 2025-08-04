@@ -37,6 +37,7 @@
         'stock_account',
         'sale_stock',
         'base_import',
+        'partner_autocomplete',
         'calendar',
     ],
     'data': [
@@ -48,8 +49,6 @@
         'data/dealership_data.xml',
         'data/product_category_data.xml',
         'data/dealership_cron.xml',
-        'data/fleet_vehicle_state_data.xml',
-        # 'data/website_data.xml',
 
         # Backend Views
         'views/dealership_vehicle_views.xml',

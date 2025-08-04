@@ -8,9 +8,9 @@
         <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
         <field name="arch" type="xml">
             <!-- Modify state field behavior -->
-            <field name="state_id" position="attributes">
-                <attribute name="options">{ 'no_open': True}</attribute>
-            </field>
+<!--            <field name="state_id" position="attributes">-->
+<!--                <attribute name="options">{ 'no_open': True}</attribute>-->
+<!--            </field>-->
         </field>
     </record>
 </odoo>

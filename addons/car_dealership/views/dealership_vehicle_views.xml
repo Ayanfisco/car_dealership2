@@ -59,8 +59,6 @@
                                 <group name="pricing">
                                     <field name="purchase_price" widget="monetary"/>
                                     <field name="selling_price" widget="monetary"/>
-                                    <field name="profit_amount" widget="monetary" readonly="1"/>
-                                    <field name="profit_percentage" readonly="1"/>
                                 </group>
                             </group>
                         </page>
@@ -102,7 +100,6 @@
                 <!-- <field name="business_type"/> -->
                 <field name="purchase_price" widget="monetary"/>
                 <field name="selling_price" widget="monetary"/>
-                <field name="profit_amount" widget="monetary"/>
                 <field name="state" widget="badge"/>
                 <field name="currency_id" invisible="1"/>
                 <field name="quantity"/>
@@ -129,8 +126,6 @@
                 <filter string="Available" name="available" domain="[('state', '=', 'available')]"/>
                 <filter string="Sold" name="sold" domain="[('state', '=', 'sold')]"/>
                 <separator/>
-                <filter string="Profitable" name="profitable" domain="[('profit_amount', '&gt;', 0)]"/>
-                <filter string="Loss Making" name="loss_making" domain="[('profit_amount', '&lt;', 0)]"/>
 
                 <group expand="0" string="Group By">
                     <filter string="Make" name="group_make" domain="[]" context="{'group_by': 'make_id'}"/>
@@ -158,7 +153,6 @@
                 <field name="color"/>
                 <field name="purchase_price"/>
                 <field name="selling_price"/>
-                <field name="profit_amount"/>
                 <field name="state"/>
                 <!-- <field name="business_type"/> -->
                 <field name="image_128"/>
@@ -200,14 +194,6 @@
                                             Selling:
                                             <field name="selling_price" widget="monetary"/>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="o_kanban_record_bottom">
-                                    <div class="oe_kanban_bottom_right" t-if="record.profit_amount.raw_value">
-                                        <span t-att-class="'badge ' + (record.profit_amount.raw_value > 0 ? 'badge-success' : 'badge-danger')">
-                                            Profit:
-                                            <field name="profit_amount" widget="monetary"/>
-                                        </span>
                                     </div>
                                 </div>
                             </div>

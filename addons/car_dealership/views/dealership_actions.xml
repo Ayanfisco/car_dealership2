@@ -63,30 +63,21 @@
             </p>
         </field>
     </record>
-
-    <!-- Window Action -->
-    <record id="action_vehicle_dashboard" model="ir.actions.act_window">
-        <field name="name">Vehicle Dashboard</field>
+    <!-- Actions -->
+    <record id="action_dealership_vehicle" model="ir.actions.act_window">
+        <field name="name">Dealership Vehicles</field>
         <field name="res_model">dealership.vehicle</field>
-        <field name="view_mode">kanban</field>
-<!--        <field name="view_id" ref="dealership_vehicle_view_kanban"/>-->
-        <field name="context">{}</field>
-        <field name="target">current</field>
+        <field name="view_mode">kanban,list,form</field>
+        <!-- <field name="context">{'search_default_available': 1}</field> -->
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first dealership vehicle!
+            </p>
+            <p>
+                Track vehicles in your dealership with detailed information,
+                including VIN numbers, specifications, and profit tracking.
+            </p>
+        </field>
     </record>
 
-    <!--    <record id="action_dealership_vehicle_available" model="ir.actions.act_window">-->
-    <!--        <field name="name">Available Vehicles</field>-->
-    <!--        <field name="res_model">product.template</field>-->
-    <!--        <field name="view_mode">kanban,list,form</field>-->
-    <!--        <field name="domain">[('state', '=', 'available'), ('is_vehicle', '=', True)]</field>-->
-    <!--        <field name="context">{'search_default_available': 1}</field>-->
-    <!--    </record>-->
-
-    <!--    <record id="action_dealership_vehicle_sold" model="ir.actions.act_window">-->
-    <!--        <field name="name">Sold Vehicles</field>-->
-    <!--        <field name="res_model">product.template</field>-->
-    <!--        <field name="view_mode">list,form</field>-->
-    <!--        <field name="domain">[('state', '=', 'sold'), ('is_vehicle', '=', True)]</field>-->
-    <!--        <field name="context">{'search_default_sold': 1}</field>-->
-    <!--    </record>-->
 </odoo>

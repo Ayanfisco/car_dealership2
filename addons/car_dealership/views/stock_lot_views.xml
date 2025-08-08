@@ -1,0 +1,13 @@
+<!-- File: dealership/views/stock_move_line_form_inherit.xml -->
+<odoo>
+  <record id="view_stock_lot_vin" model="ir.ui.view">
+    <field name="name">stock.lot.vin</field>
+    <field name="model">stock.lot</field>
+    <field name="inherit_id" ref="stock.view_production_lot_tree" />
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='name']" position="attributes">
+        <attribute name="string">VIN Number/Chasis Number</attribute>
+      </xpath>
+    </field>    
+  </record>
+</odoo>

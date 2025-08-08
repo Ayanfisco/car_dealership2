@@ -34,8 +34,8 @@
     <record id="demo_vehicle_consigned" model="dealership.vehicle">
         <field name="name">Demo Consigned Car</field>
         <field name="vin_number">VINCON123456</field>
-        <field name="make_id" ref="fleet.vehicle_model_brand_toyota"/>
-        <field name="model_id" ref="fleet.vehicle_model_corolla"/>
+        <field name="make_id" ref="fleet.model_brand_toyota"/>
+        <field name="model_id" ref="fleet.model_model_corolla"/>
         <field name="year">2022</field>
         <field name="business_type">consigned</field>
         <field name="vendor_id" ref="demo_consignor_partner"/>

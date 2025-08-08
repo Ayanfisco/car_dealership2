@@ -122,7 +122,7 @@ class DealershipVehicle(models.Model):
             'name': self.name,
             'type': 'consu',  # For Odoo 16+ use 'detailed_type'
             'tracking': 'serial',  # Track by unique serial number (VIN)
-            'categ_id': category.id,  # Ensure this category exists
+            'categ_id': category.id,
             'list_price': self.selling_price or 0.0,
             'standard_price': self.purchase_price or 0.0,
             'is_vehicle': True,

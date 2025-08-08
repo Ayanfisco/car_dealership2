@@ -65,17 +65,6 @@ class DealershipVehicle(models.Model):
     sale_order_line_id = fields.Many2one(
         'sale.order.line', string='Sale Order Line')
 
-    # Commission fields for dealer network and consigned products
-    commission_type = fields.Selection([
-        ('percentage', 'Percentage'),
-        ('fixed', 'Fixed Amount')
-    ], string='Commission Type', tracking=True)
-    commission_value = fields.Float('Commission Value', tracking=True)
-    commission_amount = fields.Monetary('Commission Amount', currency_field='currency_id',
-                                        compute='_compute_commission_amount', store=True)
-    net_payable = fields.Monetary('Net Payable', currency_field='currency_id',
-                                  compute='_compute_net_payable', store=True)
-
     # Status
     state = fields.Selection([
         ('draft', 'Draft'),

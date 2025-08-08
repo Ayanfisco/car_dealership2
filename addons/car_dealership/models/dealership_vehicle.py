@@ -83,12 +83,6 @@ class DealershipVehicle(models.Model):
     image_128 = fields.Image(
         'Image 128', related='image_1920', max_width=128, max_height=128, store=True)
 
-    # Computed fields
-    profit_amount = fields.Monetary('Profit Amount', currency_field='currency_id',
-                                    compute='_compute_profit_amount', store=True)
-    profit_percentage = fields.Float(
-        'Profit %', compute='_compute_profit_percentage', store=True)
-
     # Quantity field
     quantity = fields.Integer('Quantity', default=1, tracking=True,
                               help="Number of vehicles of this make/model/year/color in stock.")

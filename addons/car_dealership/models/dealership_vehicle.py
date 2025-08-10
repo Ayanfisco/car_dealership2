@@ -207,6 +207,7 @@ class DealershipVehicle(models.Model):
                 'model_year': self.year,
                 'acquisition_date': fields.Date.today(),
                 'car_value': self.purchase_price,
+                'state_id': self.env['fleet.vehicle.state'].search([('name', '=', 'Unregistered')], limit=1).id,
             }
             fleet_vehicle = self.env['fleet.vehicle'].create(fleet_vals)
             self.fleet_vehicle_id = fleet_vehicle.id

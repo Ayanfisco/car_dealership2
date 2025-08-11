@@ -54,7 +54,6 @@ class DealershipVehicle(models.Model):
         ('automatic', 'Automatic'),
         ('cvt', 'CVT')
     ], string='Transmission', tracking=True)
-
     # Financial Information
     purchase_price = fields.Monetary(
         'Cost Price', currency_field='currency_id', tracking=True)
@@ -121,6 +120,9 @@ class DealershipVehicle(models.Model):
         product_vals = {
             'name': self.name,
             'type': 'consu',  # For Odoo 16+ use 'detailed_type'
+            'make_id': self.make_id.id,
+            'model_id': self.model_id.id,
+            'year': self.year,
             'tracking': 'serial',  # Track by unique serial number (VIN)
             'categ_id': category.id,
             'list_price': self.selling_price or 0.0,

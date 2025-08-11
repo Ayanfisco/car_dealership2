@@ -22,7 +22,7 @@ class StockPicking(models.Model):
                         f"Processing move line - Product: {product.name if product else 'None'}, Lot: {lot.name if lot else 'None'}")
 
                     if product and lot and move_line.qty_done > 0:
-                        # Check if dealership vehicle already exists
+                        # Checking whether dealership vehicle already exists
                         exists = self.env['dealership.vehicle'].search(
                             [('vin_number', '=', lot.name)], limit=1)
 

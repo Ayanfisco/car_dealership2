@@ -123,6 +123,20 @@ class StockPicking(models.Model):
                             picking.message_post(
                                 body=f"Vehicle {vehicle.name} (VIN: {lot.name}) marked as Sold."
                             )
+                        if vehicle.fleet_vehicle_id:
+                            sold_state = self.env['fleet.vehicle.state'].search(
+                                [('name', '=', 'Sold')], limit=1
+                            )
+                            if sold_state:
+                                vehicle.fleet_vehicle_id.write(
+                                    {'state_id': sold_state.id})
+                                _logger.info(
+                                    f"Fleet Vehicle {vehicle.fleet_vehicle_id.name} marked as Sold.")
+
+                        # Add chatter log
+                        picking.message_post(
+                            body=f"Vehicle {vehicle.name} (VIN: {lot.name}) marked as Sold in both Dealership and Fleet."
+                        )
 
         # Only create vehicles for successful validations
         if res:

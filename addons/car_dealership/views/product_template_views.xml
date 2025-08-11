@@ -9,7 +9,7 @@
                 <field name="is_vehicle"/>
                 <label for="is_vehicle"/>
             </xpath>
-            <xpath expr="//div[@name='options']" position="inside">
+            <!-- <xpath expr="//div[@name='options']" position="inside">
                 <group name="vehicle_Information" invisible="not is_vehicle">
                     <group name="vehicle_info_1">
                         <field name="make_id" required="1"/>
@@ -19,7 +19,7 @@
                         <field name="year"/>
                     </group>
                 </group>
-            </xpath>
+            </xpath> -->
 
         </field>
     </record>

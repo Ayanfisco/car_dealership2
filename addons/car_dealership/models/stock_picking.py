@@ -34,7 +34,6 @@ class StockPicking(models.Model):
                                 'vin_number': lot.name,
                                 'is_template_dummy': False,
                                 'state': 'available',
-
                                 'quantity': 1,  # Each serial number = 1 vehicle
                             }
 

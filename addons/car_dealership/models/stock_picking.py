@@ -34,14 +34,15 @@ class StockPicking(models.Model):
                                 'vin_number': lot.name,
                                 'is_template_dummy': False,
                                 'state': 'available',
+
                                 'quantity': 1,  # Each serial number = 1 vehicle
                             }
 
                             # Add make_id and model_id if they exist on the product
-                            if hasattr(product, 'vehicle_make_id') and product.vehicle_make_id:
+                            if getattr(product, 'vehicle_make_id', False) and hasattr(product.vehicle_make_id, 'id'):
                                 vehicle_vals['make_id'] = product.vehicle_make_id.id
 
-                            if hasattr(product, 'vehicle_model_id') and product.vehicle_model_id:
+                            if getattr(product, 'vehicle_model_id', False) and hasattr(product.vehicle_model_id, 'id'):
                                 vehicle_vals['model_id'] = product.vehicle_model_id.id
 
                             # Add year - check multiple possible field names

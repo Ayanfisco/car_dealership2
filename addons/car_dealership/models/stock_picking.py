@@ -39,25 +39,6 @@ class StockPicking(models.Model):
                                 'quantity': 1,  # Each serial number = 1 vehicle
                             }
 
-                            # Add make_id and model_id if they exist on the product
-                            if hasattr(product, 'vehicle_make_id') and product.vehicle_make_id:
-                                vehicle_vals['make_id'] = product.vehicle_make_id.id
-
-                            if hasattr(product, 'vehicle_model_id') and product.vehicle_model_id:
-                                vehicle_vals['model_id'] = product.vehicle_model_id.id
-
-                            # Add year - check multiple possible field names
-                            year_value = None
-                            for year_field in ['model_year', 'year', 'vehicle_year']:
-                                if hasattr(product, year_field):
-                                    year_value = getattr(
-                                        product, year_field, None)
-                                    if year_value:
-                                        break
-
-                            if year_value:
-                                vehicle_vals['year'] = year_value
-
                             # Add other product attributes if they exist
                             product_attrs = {
                                 'color': 'vehicle_color',

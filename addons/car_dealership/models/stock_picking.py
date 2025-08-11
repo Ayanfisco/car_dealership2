@@ -22,7 +22,7 @@ class StockPicking(models.Model):
                         f"Processing move line - Product: {product.name if product else 'None'}, Lot: {lot.name if lot else 'None'}")
 
                     if product and lot and move_line.qty_done > 0:
-                        # Checking whether dealership vehicle already exists
+                        # Check if dealership vehicle already exists
                         exists = self.env['dealership.vehicle'].search(
                             [('vin_number', '=', lot.name)], limit=1)
 
@@ -34,14 +34,16 @@ class StockPicking(models.Model):
                                 'vin_number': lot.name,
                                 'is_template_dummy': False,
                                 'state': 'available',
+                                'model_id': product.model_id.id if product.model_id else False,
+                                'make_id': product.make_id.id if product.make_id else False,
                                 'quantity': 1,  # Each serial number = 1 vehicle
                             }
 
                             # Add make_id and model_id if they exist on the product
-                            if getattr(product, 'vehicle_make_id', False) and hasattr(product.vehicle_make_id, 'id'):
+                            if hasattr(product, 'vehicle_make_id') and product.vehicle_make_id:
                                 vehicle_vals['make_id'] = product.vehicle_make_id.id
 
-                            if getattr(product, 'vehicle_model_id', False) and hasattr(product.vehicle_model_id, 'id'):
+                            if hasattr(product, 'vehicle_model_id') and product.vehicle_model_id:
                                 vehicle_vals['model_id'] = product.vehicle_model_id.id
 
                             # Add year - check multiple possible field names

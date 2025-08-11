@@ -120,9 +120,9 @@ class DealershipVehicle(models.Model):
         product_vals = {
             'name': self.name,
             'type': 'consu',  # For Odoo 16+ use 'detailed_type'
-            # 'make_id': self.make_id.id if self.make_id and hasattr(self.make_id, 'id') else False,
-            # 'model_id': self.model_id.id if self.model_id and hasattr(self.model_id, 'id') else False,
-            # 'year': self.year,
+            'make_id': self.make_id.id if self.make_id else False,
+            'model_id': self.model_id.id if self.model_id else False,
+            'year': self.year,
             'tracking': 'serial',  # Track by unique serial number (VIN)
             'categ_id': category.id,
             'list_price': self.selling_price or 0.0,

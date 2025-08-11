@@ -24,9 +24,9 @@ class DealershipVehicle(models.Model):
 
     # Vehicle Details
     make_id = fields.Many2one(
-        'fleet.vehicle.model.brand', string='Make', required=False)
+        'fleet.vehicle.model.brand', string='Make', required=True, tracking=True)
     model_id = fields.Many2one(
-        'fleet.vehicle.model', string='Model', tracking=True, required=False)
+        'fleet.vehicle.model', string='Model', tracking=True, required=True)
     year = fields.Integer('Year', tracking=True)
     color = fields.Char('Color', tracking=True)
     engine_size = fields.Char(
@@ -85,12 +85,6 @@ class DealershipVehicle(models.Model):
     # Quantity field
     quantity = fields.Integer('Quantity', default=1, tracking=True,
                               help="Number of vehicles of this make/model/year/color in stock.")
-
-    # Add SQL constraint to prevent duplicates at database level
-    _sql_constraints = [
-        ('unique_model_year', 'UNIQUE(model_id, year)',
-         'A vehicle with this model and year already exists in the system!')
-    ]
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -176,19 +170,23 @@ class DealershipVehicle(models.Model):
                     raise ValidationError(
                         _('VIN Number must be unique. This VIN already exists.'))
 
-    @api.constrains('model_id', 'year')
+    # Add 'state' to the constrains decorator
+    @api.constrains('model_id', 'year', 'state')
     def _check_duplicate_model_year(self):
-        """Check for duplicate model and year combination"""
+        """Check for duplicate model and year combination for draft vehicles"""
         for record in self:
-            if record.model_id and record.year:
+            # Only apply constraint to draft vehicles
+            if record.state == 'draft' and record.model_id and record.year:
                 existing = self.search([
                     ('model_id', '=', record.model_id.id),
                     ('year', '=', record.year),
+                    # Only check against other draft vehicles
+                    ('state', '=', 'draft'),
                     ('id', '!=', record.id)
                 ])
                 if existing:
                     raise ValidationError(
-                        _('A vehicle with model "%s" and year "%s" already exists in the system.\n'
+                        _('A draft vehicle with model "%s" and year "%s" already exists in the system.\n'
                           'Existing vehicle: %s') %
                         (record.model_id.name, record.year, existing[0].name)
                     )

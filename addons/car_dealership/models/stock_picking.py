@@ -36,6 +36,7 @@ class StockPicking(models.Model):
                                 'state': 'available',
                                 'model_id': product.model_id.id if product.model_id else False,
                                 'make_id': product.make_id.id if product.make_id else False,
+                                'year': product.year if product.year else False,
                                 'quantity': 1,  # Each serial number = 1 vehicle
                             }
 
@@ -103,6 +104,25 @@ class StockPicking(models.Model):
     def button_validate(self):
         """Override validate button to create vehicles after validation"""
         res = super(StockPicking, self).button_validate()
+
+        for picking in self:
+            if picking.picking_type_id.code == 'outgoing':  # Delivery to customer
+                for move_line in picking.move_line_ids:
+                    lot = move_line.lot_id  # VIN
+                    product = move_line.product_id
+
+                    if lot:
+                        # Find matching dealership.vehicle
+                        vehicle = self.env['dealership.vehicle'].search(
+                            [('vin_number', '=', lot.name)], limit=1
+                        )
+                        if vehicle and vehicle.state != 'sold':
+                            vehicle.write({'state': 'sold'})
+                            _logger.info(
+                                f"Vehicle {vehicle.name} with VIN {lot.name} marked as Sold.")
+                            picking.message_post(
+                                body=f"Vehicle {vehicle.name} (VIN: {lot.name}) marked as Sold."
+                            )
 
         # Only create vehicles for successful validations
         if res:

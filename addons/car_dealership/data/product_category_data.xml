@@ -3,6 +3,7 @@
     <!-- Main Dealership Category -->
     <record id="product_category_dealership_vehicles" model="product.category">
         <field name="name">Vehicles</field>
+        <field name="parent_id" ref="product.product_category_all"/>
         <field name="property_cost_method">fifo</field>
         <field name="property_valuation">real_time</field>
         <field name="property_stock_account_input_categ_id" ref="account_dealership_stock_input"/>

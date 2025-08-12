@@ -40,7 +40,7 @@
                             <!-- <field name="business_type" widget="radio" options="{'horizontal': true}"/> -->
                             <field name="make_id" required="1"/>
                             <field name="model_id" domain="[('brand_id', '=', make_id)]"/>
-                            <field name="year"/>
+                            <field name="year" widget="char" required="1"/>
                             <field name="color" invisible="is_template_dummy"/>
                             <field name="mileage" invisible="is_template_dummy"/>
                         </group>
@@ -170,7 +170,7 @@
                 <field name="vin_number"/>
                 <field name="make_id"/>
                 <field name="model_id"/>
-                <field name="year"/>
+                <field name="year" widget="char"/>
                 <field name="color"/>
                 <field name="purchase_price"/>
                 <field name="selling_price"/>

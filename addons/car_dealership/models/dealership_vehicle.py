@@ -144,6 +144,7 @@ class DealershipVehicle(models.Model):
             'standard_price': self.purchase_price or 0.0,
             'is_vehicle': True,
             'is_storable': True,
+            'image_1920': self.image_1920,
             # Add custom fields if they exist in your product.template model
         }
 

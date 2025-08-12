@@ -164,7 +164,7 @@
         <field name="name">dealership.vehicle.kanban</field>
         <field name="model">dealership.vehicle</field>
         <field name="arch" type="xml">
-            <kanban string="Vehicles" default_group_by="state" sample="small" class="o_kanban_small_column">
+            <kanban string="Vehicles" default_group_by="state" sample="1" class="o_kanban_small_column">
                 <field name="id"/>
                 <field name="name"/>
                 <field name="vin_number"/>

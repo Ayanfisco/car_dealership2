@@ -8,7 +8,8 @@
             <form string="Dealership Vehicle">
                 <header>
                     <button name="create_fleet_vehicle" type="object" string="Create Fleet Record"
-                            class="btn-primary" invisible="fleet_vehicle_id"/>
+                    class="btn-primary" 
+                    invisible="['|', ('fleet_vehicle_id', '!=', False), ('state', 'in', ['sold', 'draft'])]"/>
                     <field name="state" widget="statusbar"/>
                 </header>
 
@@ -91,6 +92,7 @@
         <field name="name">dealership.vehicle.tree</field>
         <field name="model">dealership.vehicle</field>
         <field name="arch" type="xml">
+        
             <list string="Dealership Vehicles" decoration-success="state=='available'">
                 <field name="name"/>
                 <field name="vin_number"/>
@@ -143,7 +145,7 @@
         <field name="name">dealership.vehicle.kanban</field>
         <field name="model">dealership.vehicle</field>
         <field name="arch" type="xml">
-            <kanban string="Vehicles" default_group_by="state" class="o_kanban_small_column">
+            <kanban string="Vehicles" default_group_by="state" class="o_kanban_small_column" invisible="state=='sold'">
                 <field name="id"/>
                 <field name="name"/>
                 <field name="vin_number"/>

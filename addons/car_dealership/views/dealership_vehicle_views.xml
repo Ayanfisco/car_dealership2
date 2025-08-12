@@ -23,28 +23,29 @@
                             </div>
                         </button>
                     </div>
-
-                    <field name="image_1920" widget="image" class="oe_avatar"/>
+                    <field name="is_template_dummy" invisible="1"/>
+                    <field name="image_1920" widget="image" class="oe_avatar" invisible="is_template_dummy"/>
 
                     <div class="oe_title">
                         <h1>
+                            <field name="is_favorite" widget="boolean_favorite" nolabel="1"/>
                             <field name="name" required="1" placeholder="Vehicle Name"/>
                         </h1>
                     </div>
 
                     <group>
                         <group name="vehicle_info">
-                            <field name="vin_number"/>
+                            <field name="vin_number" invisible="is_template_dummy"/>
                             <field name="product_id" readonly="1"/>
                             <!-- <field name="business_type" widget="radio" options="{'horizontal': true}"/> -->
                             <field name="make_id" required="1"/>
                             <field name="model_id" domain="[('brand_id', '=', make_id)]"/>
                             <field name="year"/>
-                            <field name="color"/>
-                            <field name="mileage"/>
+                            <field name="color" invisible="is_template_dummy"/>
+                            <field name="mileage" invisible="is_template_dummy"/>
                         </group>
 
-                        <group name="specs">
+                        <group name="specs" invisible="is_template_dummy">
                             <field name="fuel_type"/>
                             <field name="transmission"/>
                             <field name="condition"/>
@@ -55,8 +56,9 @@
                     </group>
 
                     <notebook>
+                        
                         <page string="Financial Information">
-                            <group>
+                            <group invisible="is_template_dummy">
                                 <group name="pricing">
                                     <field name="purchase_price" widget="monetary"/>
                                     <field name="selling_price" widget="monetary"/>
@@ -64,8 +66,8 @@
                             </group>
                         </page>
 
-                        <page string="Orders">
-                            <group>
+                        <page string="Orders" invisible="not is_template_dummy">
+                            <group name="orders_info">
                                 <group name="purchase_info">
                                     <field name="purchase_order_line_id" readonly="1"/>
                                 </group>
@@ -74,9 +76,26 @@
                                 </group>
                             </group>
                         </page>
+                        
+                       <page string="Vehicle Images/Videos">
+                            <group invisible="is_template_dummy">
+                                <group string="Images">
+                                    <field name="dealership_image_ids" 
+                                        widget="many2many_binary" 
+                                        options="{'accepted_file_extensions': 'image/*'}"
+                                        nolabel="1"/>
+                                </group>
+                                <group string="Videos">
+                                    <field name="dealership_video_ids" 
+                                        widget="many2many_binary" 
+                                        options="{'accepted_file_extensions': 'video/*'}"
+                                        nolabel="1"/>
+                                </group>
+                            </group>
+                        </page>
 
                         <page string="Fleet Integration">
-                            <group>
+                            <group invisible="is_template_dummy">
                                 <field name="fleet_vehicle_id" readonly="1"/>
                             </group>
                         </page>
@@ -92,16 +111,17 @@
         <field name="name">dealership.vehicle.tree</field>
         <field name="model">dealership.vehicle</field>
         <field name="arch" type="xml">
-        
+
             <list string="Dealership Vehicles" decoration-success="state=='available'">
+                <field name="is_favorite" widget="boolean_favorite" nolabel="1"/>
                 <field name="name"/>
                 <field name="vin_number"/>
                 <field name="make_id"/>
                 <field name="model_id"/>
                 <field name="year"/>
                 <!-- <field name="business_type"/> -->
-                <field name="purchase_price" widget="monetary"/>
-                <field name="selling_price" widget="monetary"/>
+                <field name="purchase_price" widget="monetary" invisible="is_template_dummy"/>
+                <field name="selling_price" widget="monetary" invisible="is_template_dummy"/>
                 <field name="state" widget="badge"/>
                 <field name="currency_id" invisible="1"/>
                 <field name="quantity"/>
@@ -121,10 +141,9 @@
                 <field name="model_id"/>
                 <field name="vendor_id"/>
                 <field name="year"/>
-                <!-- <field name="business_type"/> -->
                 <field name="state"/>
 
-                <filter string="Reserved" name="reserved" domain="[('state', '=', 'reserved')]"/>
+                <filter string="Vehicle Template" name="vehicle_template" domain="[('state', '=', 'draft')]"/>
                 <filter string="Available" name="available" domain="[('state', '=', 'available')]"/>
                 <filter string="Sold" name="sold" domain="[('state', '=', 'sold')]"/>
                 <separator/>
@@ -145,7 +164,7 @@
         <field name="name">dealership.vehicle.kanban</field>
         <field name="model">dealership.vehicle</field>
         <field name="arch" type="xml">
-            <kanban string="Vehicles" default_group_by="state" class="o_kanban_small_column" invisible="state=='sold'">
+            <kanban string="Vehicles" default_group_by="state" sample="small" class="o_kanban_small_column">
                 <field name="id"/>
                 <field name="name"/>
                 <field name="vin_number"/>
@@ -156,14 +175,13 @@
                 <field name="purchase_price"/>
                 <field name="selling_price"/>
                 <field name="state"/>
-                <!-- <field name="business_type"/> -->
                 <field name="image_128"/>
                 <field name="currency_id"/>
 
                 <templates>
                     <t t-name="kanban-box">
-                        <div class="oe_kanban_card oe_kanban_global_click">
-                            <div class="o_kanban_image">
+                        <div class="oe_kanban_card oe_kanban_global_click" id="dealership_main_kanban" style="border-left: 5px solid #fb941c;">
+                            <div class="o_kanban_image" invisible="is_template_dummy">
                                 <img t-att-src="kanban_image('dealership.vehicle', 'image_128', record.id.raw_value)"
                                      alt="Vehicle" class="o_image_64_cover"/>
                             </div>
@@ -171,6 +189,7 @@
                                 <div class="o_kanban_record_top">
                                     <div class="o_kanban_record_headings">
                                         <strong class="o_kanban_record_title">
+                                            <field name="is_favorite" widget="boolean_favorite" nolabel="1"/>
                                             <field name="name"/>
                                         </strong>
                                         <br/>
@@ -190,11 +209,11 @@
                                     <div class="oe_kanban_bottom_left">
                                         <div class="o_kanban_inline_block">
                                             Purchase:
-                                            <field name="purchase_price" widget="monetary"/>
+                                            <field name="purchase_price" widget="monetary" invisible="is_template_dummy"/>
                                         </div>
                                         <div class="o_kanban_inline_block" t-if="record.selling_price.raw_value">
                                             Selling:
-                                            <field name="selling_price" widget="monetary"/>
+                                            <field name="selling_price" widget="monetary" invisible="is_template_dummy"/>
                                         </div>
                                     </div>
                                 </div>

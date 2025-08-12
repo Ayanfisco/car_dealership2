@@ -1,5 +1,7 @@
 from odoo import models, api
 import logging
+from odoo.exceptions import UserError
+
 
 _logger = logging.getLogger(__name__)
 
@@ -104,6 +106,13 @@ class StockPicking(models.Model):
     def button_validate(self):
         """Override validate button to create vehicles after validation"""
         res = super(StockPicking, self).button_validate()
+        # Only create vehicles for successful validations
+        if res:
+            try:
+                self.create_dealership_vehicles_from_receipt()
+            except Exception as e:
+                _logger.error(f"Error creating dealership vehicles: {str(e)}")
+                # Optionally show user error or handle gracefully
 
         for picking in self:
             if picking.picking_type_id.code == 'outgoing':  # Delivery to customer
@@ -137,13 +146,5 @@ class StockPicking(models.Model):
                         picking.message_post(
                             body=f"Vehicle {vehicle.name} (VIN: {lot.name}) marked as Sold in both Dealership and Fleet."
                         )
-
-        # Only create vehicles for successful validations
-        if res:
-            try:
-                self.create_dealership_vehicles_from_receipt()
-            except Exception as e:
-                _logger.error(f"Error creating dealership vehicles: {str(e)}")
-                # Optionally show user error or handle gracefully
 
         return res

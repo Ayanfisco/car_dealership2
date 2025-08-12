@@ -56,8 +56,8 @@
         'views/dealership_dashboard_views.xml',
         'views/product_template_views.xml',
         'views/dealership_actions.xml',
-        # 'views/stock_move_form_views.xml',
-        # 'views/stock_lot_views.xml',
+        'views/stock_move_form_views.xml',
+        'views/stock_lot_views.xml',
         'views/fleet_vehicle_views.xml',
         # 'views/dealership_product_views.xml',
         # 'views/dealership_purchase_views.xml',
@@ -74,6 +74,11 @@
     'demo': [
         'data/demo_dealership_vehicle.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'car_dealership/static/src/css/dealership_styles.css',
+        ],
+    },
     'installable': True,
     'auto_install': False,
     'application': True,

@@ -1,0 +1,12 @@
+#dealership_main_kanban {
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 10px 0;
+}
+
+#dealership_main_kanban:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-right: 5px solid #fb941c;
+    transition: border-right 0.4s ease-in-out;
+    background-color: rgb(245, 245, 245);
+}

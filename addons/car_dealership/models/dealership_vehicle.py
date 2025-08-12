@@ -10,11 +10,14 @@ class DealershipVehicle(models.Model):
     _name = 'dealership.vehicle'
     _description = 'Dealership Vehicle'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'create_date desc'
+    _order = 'is_favorite desc, create_date desc'
 
-    name = fields.Char('Vehicle Name', required=True, tracking=False)
+    name = fields.Char('Vehicle Name', required=True, tracking=False,
+                       help="Name of the vehicle, usually a combination of make, model, and year.")
     is_template_dummy = fields.Boolean(
         'Is Template Dummy', default=True,)
+    is_favorite = fields.Boolean(
+        'Is Favorite', default=False, tracking=True)
     vin_number = fields.Char('VIN Number', tracking=True,
                              help="Vehicle Identification Number")
     fleet_vehicle_id = fields.Many2one(
@@ -81,6 +84,24 @@ class DealershipVehicle(models.Model):
     image_1920 = fields.Image('Image', max_width=1920, max_height=1920)
     image_128 = fields.Image(
         'Image 128', related='image_1920', max_width=128, max_height=128, store=True)
+
+    dealership_image_ids = fields.Many2many(
+        'ir.attachment',
+        'dealership_vehicle_image_rel',
+        'dealership_vehicle_id', 'attachment_id',
+        string='Dealership Images',
+        domain="[('mimetype', 'ilike', 'image')]",
+        help='Upload multiple images for this product.'
+    )
+
+    dealership_video_ids = fields.Many2many(
+        'ir.attachment',
+        'dealership_vehicle_video_rel',
+        'dealership_vehicle_id', 'attachment_id',
+        string='Dealership Videos',
+        domain="[('mimetype', 'ilike', 'video')]",
+        help='Upload multiple videos for this product.'
+    )
 
     # Quantity field
     quantity = fields.Integer('Quantity', default=1, tracking=True,

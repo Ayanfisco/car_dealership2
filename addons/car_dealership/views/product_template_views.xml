@@ -23,4 +23,15 @@
 
         </field>
     </record>
+    <record id="view_product_template_search_inherit_dealership" model="ir.ui.view">
+        <field name="name">product.template.search.inherit.dealership</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="is_vehicle" string="Is Vehicle"/>
+                <filter string="Vehicles" name="vehicles" domain="[('is_vehicle', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

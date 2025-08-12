@@ -30,7 +30,7 @@ class DealershipVehicle(models.Model):
         'fleet.vehicle.model.brand', string='Make', required=True, tracking=True)
     model_id = fields.Many2one(
         'fleet.vehicle.model', string='Model', tracking=True, required=True)
-    year = fields.Integer('Year', tracking=True, required=True)
+    year = fields.Integer('Year', required=True, tracking=True)
     color = fields.Char('Color', tracking=True)
     engine_size = fields.Char(
         'Engine Size', tracking=True, help="Engine size in liters or cc")

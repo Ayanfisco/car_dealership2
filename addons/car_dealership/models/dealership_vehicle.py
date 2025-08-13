@@ -30,7 +30,7 @@ class DealershipVehicle(models.Model):
         'fleet.vehicle.model.brand', string='Make', required=True, tracking=True)
     model_id = fields.Many2one(
         'fleet.vehicle.model', string='Model', tracking=True, required=True)
-    year = fields.Integer('Year', required=True, tracking=True)
+    year = fields.Integer(string='Year', tracking=True, required=True)
     color = fields.Char('Color', tracking=True)
     engine_size = fields.Char(
         'Engine Size', tracking=True, help="Engine size in liters or cc")
@@ -114,8 +114,9 @@ class DealershipVehicle(models.Model):
             # Always create individual records when called from stock picking with VIN
             # This ensures each serial number creates a separate vehicle record
             new_vehicle = super(DealershipVehicle, self).create([vals])
-
-            # Create product only if it doesn't exist
+            if not new_vehicle.year:
+                raise UserError(_('Year is required.'))
+                # Create product only if it doesn't exist
             if not new_vehicle.product_id:
                 new_vehicle._create_product()
 

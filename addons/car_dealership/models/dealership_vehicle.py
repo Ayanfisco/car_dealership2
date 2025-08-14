@@ -293,25 +293,6 @@ class DealershipVehicle(models.Model):
 
             product_template.write(update_vals)
 
-        elif not self.is_template_dummy:
-            update_vals = {
-                'name': self.name,
-                'type': 'consu',
-                'make_id': self.make_id.id if self.make_id else False,
-                'model_id': self.model_id.id if self.model_id else False,
-                'year': self.year,
-                'tracking': 'serial',  # Track by unique serial number (VIN)
-                'categ_id': category.id,
-                'list_price': self.selling_price or 0.0,
-                'standard_price': self.purchase_price or 0.0,
-                'is_vehicle': True,
-                'is_storable': True,
-                'image_1920': self.image_1920,
-                'active': False,
-            }
-
-            product_template.write(update_vals)
-
     def write(self, vals):
         """Override write to update corresponding product"""
         result = super().write(vals)

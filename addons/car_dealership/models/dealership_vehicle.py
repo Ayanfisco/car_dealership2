@@ -451,9 +451,6 @@ class DealershipVehicle(models.Model):
 
             product_template.write(update_vals)
 
-    @api.model
-    def
-
     def write(self, vals):
         """Override write to update corresponding product"""
         result = super().write(vals)

@@ -106,6 +106,7 @@ class DealershipVehicle(models.Model):
     # Quantity field
     quantity = fields.Integer('Quantity', default=1, tracking=True,
                               help="Number of vehicles of this make/model/year/color in stock.")
+    trim = fields.Char('Trim', tracking=True,)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -133,33 +134,35 @@ class DealershipVehicle(models.Model):
             'car_dealership.product_category_dealership_vehicles')
 
         # Prepare product template values
-        product_vals = {
-            'name': self.name,
-            'type': 'consu',  # For Odoo 16+ use 'detailed_type'
-            'make_id': self.make_id.id if self.make_id else False,
-            'model_id': self.model_id.id if self.model_id else False,
-            'year': self.year,
-            'tracking': 'serial',  # Track by unique serial number (VIN)
-            'categ_id': category.id,
-            'list_price': self.selling_price or 0.0,
-            'standard_price': self.purchase_price or 0.0,
-            'is_vehicle': True,
-            'is_storable': True,
-            'image_1920': self.image_1920,
-            # Add custom fields if they exist in your product.template model
-        }
+        if self.is_template_dummy:
+            product_vals = {
+                'name': self.name,
+                'type': 'consu',  # For Odoo 16+ use 'detailed_type'
+                'make_id': self.make_id.id if self.make_id else False,
+                'model_id': self.model_id.id if self.model_id else False,
+                'year': self.year,
+                'tracking': 'serial',  # Track by unique serial number (VIN)
+                'categ_id': category.id,
+                'list_price': self.selling_price or 0.0,
+                'standard_price': self.purchase_price or 0.0,
+                'is_vehicle': True,
+                'is_storable': True,
+                'image_1920': self.image_1920,
+                # Add custom fields if they exist in your product.template model
+            }
 
-        # Create the product template
-        product_template = self.env['product.template'].create(product_vals)
+            # Create the product template
+            product_template = self.env['product.template'].create(
+                product_vals)
 
-        # Get the corresponding product.product (first variant)
-        product_product = product_template.product_variant_id
+            # Get the corresponding product.product (first variant)
+            product_product = product_template.product_variant_id
 
-        # Link the product.product to this vehicle
-        self.product_id = product_product.id
+            # Link the product.product to this vehicle
+            self.product_id = product_product.id
 
-        self.message_post(body=_('Product created: %s') %
-                          product_template.name)
+            self.message_post(body=_('Product created: %s') %
+                              product_template.name)
 
     @api.onchange('make_id')
     def _onchange_make_id(self):
@@ -173,12 +176,14 @@ class DealershipVehicle(models.Model):
             self.model_id = False
             return {'domain': {'model_id': [('id', '=', False)]}}
 
-    @api.onchange('model_id', 'year')
+    @api.onchange('model_id', 'year', 'trim')
     def _onchange_vehicle_details(self):
         if self.model_id:
             name_parts = [self.model_id.brand_id.name, self.model_id.name]
             if self.year:
                 name_parts.append(str(self.year))
+            if self.trim:
+                name_parts.append(str(self.trim))
             self.name = ' '.join(name_parts)
 
     @api.constrains('vin_number')
@@ -244,4 +249,47 @@ class DealershipVehicle(models.Model):
         # Delete corresponding products if they exist
         if products_to_delete:
             products_to_delete.unlink()
+        return result
+
+    def _update_product(self):
+        """Update corresponding product template with vehicle information"""
+        if not self.product_id:
+            return
+
+        # Get the product template from the product variant
+        product_template = self.product_id.product_tmpl_id
+
+        # Get the appropriate product category
+        category = self.env.ref(
+            'car_dealership.product_category_dealership_vehicles')
+        if self.is_template_dummy:
+
+            update_vals = {
+                'name': self.name,
+                'type': 'consu',
+                'make_id': self.make_id.id if self.make_id else False,
+                'model_id': self.model_id.id if self.model_id else False,
+                'year': self.year,
+                'tracking': 'serial',  # Track by unique serial number (VIN)
+                'categ_id': category.id,
+                'list_price': self.selling_price or 0.0,
+                'standard_price': self.purchase_price or 0.0,
+                'is_vehicle': True,
+                'is_storable': True,
+                'image_1920': self.image_1920,
+            }
+
+            product_template.write(update_vals)
+
+    def write(self, vals):
+        """Override write to update corresponding product"""
+        result = super().write(vals)
+
+        # Update product if certain fields change
+        update_product_fields = [
+            'name', 'selling_price', 'purchase_price', 'business_type']
+        if any(field in vals for field in update_product_fields):
+            for vehicle in self:
+                vehicle._update_product()
+
         return result

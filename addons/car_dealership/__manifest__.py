@@ -63,6 +63,7 @@
         # 'views/dealership_purchase_views.xml',
         # 'views/dealership_sale_views.xml',
         # 'views/res_config_settings_views.xml',
+        'views/sale_order_line_views.xml',
 
         # Menus
         'views/dealership_menus.xml',
